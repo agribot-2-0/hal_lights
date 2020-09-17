@@ -45,8 +45,8 @@ def write_index_subindex_port_frame(port_num, index, sub_ind, data_len,
     message.append(index[1])  #6 index high byte
     message.append(sub_ind)  #7
     message.append(data_len)  #8
-    for data_iter in range(0, data_len):
-        message.append(data_array[data_iter])  #9-n
+    for byte in data_array:
+        message.append(byte)  #9-n
     return True, message
 
 
@@ -138,17 +138,16 @@ while True:
     if TASK_TYPE == TASK_TYPE_INIT_PORT:
         PORT_NUMBER = input("Enter port NUMBER (0 to 15): ")
         PORT_TYPE = input("Enter port TYPE (for IO-link -> 0, for DI -> 1): ")
-        OUTPUT_MSG = create_port_initialization_frame(PORT_NUMBER, PORT_TYPE,
-                                                      DEFAULT_VENDOR_ID,
-                                                      DEFAULT_PRODUCT_ID)
-        if OUTPUT_MSG[0]:
-            MSG = OUTPUT_MSG[1]
+        RESULT, MSG = create_port_initialization_frame(PORT_NUMBER, PORT_TYPE,
+                                                       DEFAULT_VENDOR_ID,
+                                                       DEFAULT_PRODUCT_ID)
+        if RESULT:
             SOCK_OUT.sendto(MSG, (UDP_IP, UDP_PORT))
             READY = select.select([SOCK_INPUT], [], [], TIMEOUT_IN_SEC)
             if READY[0]:
-                DATA = SOCK_INPUT.recvfrom(1024)  # buffer size is 1024 bytes
-                if ord(DATA[0][ord(DATA[0][INIT_RESULT_LENGTH_BYTE]) -
-                               1]) == 0:
+                DATA, ADRESS = SOCK_INPUT.recvfrom(
+                    1024)  # buffer size is 1024 bytes
+                if ord(DATA[ord(DATA[INIT_RESULT_LENGTH_BYTE]) - 1]) == 0:
                     print "Succes, port initialized"
                 else:
                     print "Failure, Balluf Hub error code: %d" % ord(
@@ -160,19 +159,18 @@ while True:
     elif TASK_TYPE == TASK_TYPE_WRITE_DIO:
         PORT_NUMBER = input("Enter port NUMBER (0 to 15): ")
         PORT_SET = input("Enter port value (HIGH -> 1, LOW -> 0): ")
-        OUTPUT_MSG = write_dio_port_frame(PORT_NUMBER, PORT_SET)
-        if OUTPUT_MSG[0]:
-            MSG = OUTPUT_MSG[1]
+        RESULT, MSG = write_dio_port_frame(PORT_NUMBER, PORT_SET)
+        if RESULT:
             SOCK_OUT.sendto(MSG, (UDP_IP, UDP_PORT))
             READY = select.select([SOCK_INPUT], [], [], TIMEOUT_IN_SEC)
             if READY[0]:
-                DATA = SOCK_INPUT.recvfrom(1024)  # buffer size is 1024 bytes
-                if ord(DATA[0][ord(DATA[0][INIT_RESULT_LENGTH_BYTE]) -
-                               1]) == 0:
+                DATA, ADRESS = SOCK_INPUT.recvfrom(
+                    1024)  # buffer size is 1024 bytes
+                if ord(DATA[ord(DATA[INIT_RESULT_LENGTH_BYTE]) - 1]) == 0:
                     print "Succes, value set on port %d" % PORT_NUMBER
                 else:
                     print "Failure, Balluf Hub error code: %d" % ord(
-                        DATA[0][ord(DATA[0][INIT_RESULT_LENGTH_BYTE]) - 1])
+                        DATA[ord(DATA[INIT_RESULT_LENGTH_BYTE]) - 1])
             else:
                 print "Failure, socket timeout!"
         else:
@@ -191,19 +189,21 @@ while True:
         for i in range(0, N):
             ele = int(input())
             DATA_LST.append(ele)  # adding the element
-        OUTPUT_MSG = write_index_subindex_port_frame(PORT_NUMBER, INDEX_TUPPLE,
-                                                     SUBINDEX, N, DATA_LST)
-        if OUTPUT_MSG[0]:
-            MSG = OUTPUT_MSG[1]
+        RESULT, MSG = write_index_subindex_port_frame(PORT_NUMBER,
+                                                      INDEX_TUPPLE, SUBINDEX,
+                                                      N, DATA_LST)
+        if RESULT:
             SOCK_OUT.sendto(MSG, (UDP_IP, UDP_PORT))
             READY = select.select([SOCK_INPUT], [], [], TIMEOUT_IN_SEC)
             if READY[0]:
-                DATA = SOCK_INPUT.recvfrom(1024)  # buffer size is 1024 bytes
-                if ord(DATA[0][INDEX_RESULT_ACK_BYTE]) == INDEX_ACK_SUCCES:
+                DATA, ADRESS = SOCK_INPUT.recvfrom(
+                    1024)  # buffer size is 1024 bytes
+                print(DATA)
+                if ord(DATA[INDEX_RESULT_ACK_BYTE]) == INDEX_ACK_SUCCES:
                     print "Succes, value wrote to index/subindex on port %d" % PORT_NUMBER
                 else:
                     print "Failure, device error code: %d additional error code: %d" % \
-                        (ord(DATA[0][INDEX_ERROR_BYTE]), ord(DATA[0][INDEX_ADD_ERROR_BYTE]))
+                        (ord(DATA[INDEX_ERROR_BYTE]), ord(DATA[INDEX_ADD_ERROR_BYTE]))
             else:
                 print "Failure, socket timeout!"
         else:
