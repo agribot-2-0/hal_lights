@@ -8,7 +8,6 @@ project(hal_lights)
 ## Find catkin packages and libraries for catkin and system dependencies   ##
 #############################################################################
 find_package(catkin REQUIRED COMPONENTS
-  rospy
   roscpp
   agribot_msgs
   agribot_common
