@@ -1,18 +1,19 @@
 /*
- * Copyright (C) 2020 Agribot. All rights reserved.
+ * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#ifndef HAL_LED_LIGHTS_LED_LIGHTS_CONSTANTS_H_
-#define HAL_LED_LIGHTS_LED_LIGHTS_CONSTANTS_H_
+#pragma once
 #include <cstdint>
 
+namespace fade_candy_features
+{
 constexpr uint16_t pixels_per_contact = 64;
 constexpr uint16_t max_pixels_number = 512;
 constexpr std::uint8_t led_off = 0x00;
-constexpr float intensity_scale = 100.0;
-constexpr float max_intensity = 1.0;
+constexpr uint8_t intensity_scale = 100;
+}  // namespace fade_candy_features
 
-enum startingPixelsIndexes : uint16_t
+enum class FadeCandyContactPixelIndex
 {
   contact_0 = 0,
   contact_1 = 64,
@@ -25,7 +26,7 @@ enum startingPixelsIndexes : uint16_t
 };
 
 // the content of this enum must be updated with the lamp control service file constants
-enum colorTypes : std::uint8_t
+enum class Color
 {
   black = 0,
   red = 1,
@@ -55,71 +56,71 @@ struct LedSegment
   uint16_t last_pixel_index;
 };
 
-struct colorInRGB
+struct ColorInRgb
 {
   std::uint8_t red = 0;
   std::uint8_t green = 0;
   std::uint8_t blue = 0;
 
-  colorInRGB()
+  ColorInRgb()
   {
     red = 0x00;
     green = 0x00;
     blue = 0x00;
   }
 
-  colorInRGB(std::uint8_t r, std::uint8_t g, std::uint8_t b)
+  ColorInRgb(std::uint8_t r, std::uint8_t g, std::uint8_t b)
   {
     red = r;
     green = g;
     blue = b;
   }
 
-  void setColorRGB(const colorTypes color)
+  void setColorRgb(const Color color)
   {
     switch (color)
     {
-      case colorTypes::black:
+      case Color::black:
         red = 0x00;
         green = 0x00;
         blue = 0x00;
         break;
-      case colorTypes::red:
+      case Color::red:
         red = 0xFF;
         green = 0x00;
         blue = 0x00;
         break;
-      case colorTypes::green:
+      case Color::green:
         red = 0x00;
         green = 0xFF;
         blue = 0x00;
         break;
-      case colorTypes::blue:
+      case Color::blue:
         red = 0x00;
         green = 0x00;
         blue = 0xFF;
         break;
-      case colorTypes::yellow:
+      case Color::yellow:
         red = 0xFF;
         green = 0xFF;
         blue = 0x00;
         break;
-      case colorTypes::white:
+      case Color::white:
         red = 0xFF;
         green = 0xFF;
         blue = 0xFF;
         break;
-      case colorTypes::orange:
+      case Color::orange:
         red = 0xFF;
         green = 0x8C;
         blue = 0x00;
         break;
-      case colorTypes::light_blue:
+      case Color::light_blue:
         red = 0x00;
         green = 0xFF;
         blue = 0xFF;
         break;
-      case colorTypes::purple:
+      case Color::purple:
         red = 0xFF;
         green = 0x00;
         blue = 0xFF;
@@ -132,12 +133,24 @@ struct colorInRGB
     }
   }
 
-  void setIntensity(float multiplier)
+  void setIntensity(uint8_t intensity)
   {
-    red = static_cast<uint8_t>(static_cast<float>(red) * multiplier);
-    green = static_cast<uint8_t>(static_cast<float>(green) * multiplier);
-    blue = static_cast<uint8_t>(static_cast<float>(blue) * multiplier);
+    if (intensity >= 0 && intensity <= 100)
+    {
+      red = static_cast<uint8_t>(static_cast<float>(red) * (static_cast<float>(intensity) /
+                                                            static_cast<float>(fade_candy_features::intensity_scale)));
+      green =
+          static_cast<uint8_t>(static_cast<float>(green) * (static_cast<float>(intensity) /
+                                                            static_cast<float>(fade_candy_features::intensity_scale)));
+      blue =
+          static_cast<uint8_t>(static_cast<float>(blue) * (static_cast<float>(intensity) /
+                                                           static_cast<float>(fade_candy_features::intensity_scale)));
+    }
+    else
+    {
+      red = 0;
+      green = 0;
+      blue = 0;
+    }
   }
 };
-
-#endif  // HAL_LED_LIGHTS_LED_LIGHTS_CONSTANTS_H_

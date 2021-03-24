@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Agribot. All rights reserved.
+ * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
 #include <hal_led_lights/led_lights_controller.h>
@@ -9,10 +9,10 @@ using ::uint8_t;
 LedLightsController::LedLightsController()
 {
   // maximum number of leds for one fadecandy
-  for (uint pixel_iterator = 0; pixel_iterator < max_pixels_number; pixel_iterator++)
+  for (uint pixel_iterator = 0; pixel_iterator < fade_candy_features::max_pixels_number; pixel_iterator++)
   {
-    leds_state_.push_back(
-        std::move(std::make_unique<colorInRGB>(led_off, led_off, led_off)));
+    leds_state_.push_back(std::move(std::make_unique<ColorInRgb>(
+        fade_candy_features::led_off, fade_candy_features::led_off, fade_candy_features::led_off)));
   }
 }
 
@@ -26,17 +26,17 @@ LedLightsController::~LedLightsController()
   leds_state_.clear();
 }
 
-colorInRGB LedLightsController::returnPixelValue(const std::uint8_t connector, const std::uint8_t pixel) const
+ColorInRgb LedLightsController::getPixelValue(const std::uint8_t connector, const std::uint8_t pixel) const
 {
-  return *leds_state_[connector * pixels_per_contact + pixel];
+  return *leds_state_[connector * fade_candy_features::pixels_per_contact + pixel];
 }
 
 void LedLightsController::changePixel(const std::uint8_t connector, const std::uint8_t pixel,
-                                      const colorInRGB& pixel_value)
+                                      const ColorInRgb& pixel_value)
 {
-  (*leds_state_[connector * pixels_per_contact + pixel]).red = pixel_value.red;
-  (*leds_state_[connector * pixels_per_contact + pixel]).green = pixel_value.green;
-  (*leds_state_[connector * pixels_per_contact + pixel]).blue = pixel_value.blue;
+  (*leds_state_[connector * fade_candy_features::pixels_per_contact + pixel]).red = pixel_value.red;
+  (*leds_state_[connector * fade_candy_features::pixels_per_contact + pixel]).green = pixel_value.green;
+  (*leds_state_[connector * fade_candy_features::pixels_per_contact + pixel]).blue = pixel_value.blue;
 }
 
 bool LedLightsController::addLamp(const std::string& lamp_name, const uint16_t start_led, const uint16_t stop_led)
@@ -59,7 +59,7 @@ bool LedLightsController::addLamp(const std::string& lamp_name, const uint16_t s
   // then check if any lamp have the same sets of leds
   for (const auto& lamp : lamps_)
   {
-    temporary = lamp.second->returnLampPixels();
+    temporary = lamp.second->getLampPixels();
     // check if lamps pixels dont converge
     if (temporary.first_pixel_index >= lamp_segment.first_pixel_index &&
         temporary.first_pixel_index <= lamp_segment.last_pixel_index)
@@ -75,10 +75,10 @@ bool LedLightsController::addLamp(const std::string& lamp_name, const uint16_t s
     }
   }
   // if they dont converge, then add lamp to the unordered map
-  lamps_.insert(std::make_pair(lamp_name, std::move(std::make_unique<LedLightsLamp>(lamp_segment))));
+  lamps_.insert(std::make_pair(lamp_name, std::move(std::make_unique<LedLamp>(lamp_segment))));
 }
 
-bool LedLightsController::changeAllLampLightConfiguration(const colorTypes color, const uint8_t intensity,
+bool LedLightsController::changeAllLampLightConfiguration(const Color color, const uint8_t intensity,
                                                           const uint16_t periodFlashing, const uint16_t periodFading)
 {
   for (auto& lamp : lamps_)
@@ -90,7 +90,7 @@ bool LedLightsController::changeAllLampLightConfiguration(const colorTypes color
   }
 }
 
-bool LedLightsController::changeLampLightConfiguration(const std::string& lamp_name, const colorTypes color,
+bool LedLightsController::changeLampLightConfiguration(const std::string& lamp_name, const Color color,
                                                        const uint8_t intensity, const uint16_t periodFlashing,
                                                        const uint16_t periodFading)
 {
@@ -112,11 +112,11 @@ void LedLightsController::debugWriteLampConfigurations()
   for (const auto& lamp : lamps_)
   {
     std::cout << "Lamp name: " << lamp.first << "\n";
-    std::cout << "First pixel: " << static_cast<int>(lamp.second->returnLampPixels().first_pixel_index)
-              << " Last pixel: " << static_cast<int>(lamp.second->returnLampPixels().last_pixel_index) << "\n";
-    std::cout << "Color: " << static_cast<int>(lamp.second->returnColor()) << "\n";
-    std::cout << "Fading period: " << static_cast<int>(lamp.second->returnFadingPeriod()) << "\n";
-    std::cout << "Flashing period: " << static_cast<int>(lamp.second->returnFlashingPeriod()) << "\n";
+    std::cout << "First pixel: " << static_cast<int>(lamp.second->getLampPixels().first_pixel_index)
+              << " Last pixel: " << static_cast<int>(lamp.second->getLampPixels().last_pixel_index) << "\n";
+    std::cout << "Color: " << static_cast<int>(lamp.second->getColor()) << "\n";
+    std::cout << "Fading period: " << static_cast<int>(lamp.second->getFadingPeriod()) << "\n";
+    std::cout << "Flashing period: " << static_cast<int>(lamp.second->getFlashingPeriod()) << "\n";
   }
 }
 
@@ -124,15 +124,15 @@ void LedLightsController::setLedsStates()
 {
   for (const auto& lamp : lamps_)
   {
-    changeLampLedsColour(lamp.second);
+    changeLampLedsColor(lamp.second);
   }
 }
 
-void LedLightsController::changeLampLedsColour(std::unique_ptr<LedLightsLamp> const& lamp)
+void LedLightsController::changeLampLedsColor(std::unique_ptr<LedLamp> const& lamp)
 {
-  uint16_t lamp_leds_base_index = lamp->returnLampPixels().first_pixel_index;
-  uint16_t lamp_leds_last_index = lamp->returnLampPixels().last_pixel_index;
-  colorInRGB colorRGB;
+  uint16_t lamp_leds_base_index = lamp->getLampPixels().first_pixel_index;
+  uint16_t lamp_leds_last_index = lamp->getLampPixels().last_pixel_index;
+  ColorInRgb colorRGB;
   lamp->setLedsRGBvalues(&colorRGB);
   for (uint16_t led_iterator = lamp_leds_base_index; led_iterator < lamp_leds_last_index; led_iterator++)
   {

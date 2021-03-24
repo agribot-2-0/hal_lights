@@ -42,7 +42,7 @@ include_directories(
 
 link_directories("${PROJECT_SOURCE_DIR}")
 add_executable(hal_lights_node src/lights_node.cpp src/led_lights_controller.cpp
-               src/led_lights_opc_client.cpp src/led_lights_lamp.cpp src/led_lights_ros_wrapper.cpp)
+               src/led_lights_opc_client.cpp src/led_lamp.cpp src/led_lights_ros_wrapper.cpp)
 target_link_libraries(hal_lights_node ${agribot_common_LIBRARIES} ${catkin_LIBRARIES})
 
 add_dependencies(hal_lights_node ${catkin_EXPORTED_TARGETS})

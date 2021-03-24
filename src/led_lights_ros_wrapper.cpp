@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Agribot. All rights reserved.
+ * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
 #include <hal_led_lights/led_lights_ros_wrapper.h>
@@ -8,25 +8,29 @@ LedLightsRosWrapper::LedLightsRosWrapper(int argc, char** argv)
 {
   ros::init(argc, argv, "led_lights");
   node_ptr_ = std::move(std::make_unique<ros::NodeHandle>());
-  lampsControlService_ = node_ptr_->advertiseService("agribot/hal_led_lights/change_lamps_configuration",
+  lamps_control_service_ = node_ptr_->advertiseService("agribot/hal_led_lights/change_lamps_configuration",
                                                      &LedLightsRosWrapper::lampControlServiceCallback, this);
 
-  ledsController_.connectWithOPCServer();
-  ledsController_.addLamp("right_front", startingPixelsIndexes::contact_0,
-                          startingPixelsIndexes::contact_0 + pixels_per_contact - 1);
-  ledsController_.addLamp("left_front", startingPixelsIndexes::contact_2,
-                          startingPixelsIndexes::contact_2 + pixels_per_contact - 1);
-  ledsController_.addLamp("right_back", startingPixelsIndexes::contact_4,
-                          startingPixelsIndexes::contact_4 + pixels_per_contact - 1);
-  ledsController_.addLamp("left_back", startingPixelsIndexes::contact_6,
-                          startingPixelsIndexes::contact_6 + pixels_per_contact - 1);
+  leds_controller_.connectWithOPCServer();
+  leds_controller_.addLamp("right_front", static_cast<uint16_t>(FadeCandyContactPixelIndex::contact_0),
+                          static_cast<uint16_t>(FadeCandyContactPixelIndex::contact_0) +
+                              fade_candy_features::pixels_per_contact - 1);
+  leds_controller_.addLamp("left_front", static_cast<uint16_t>(FadeCandyContactPixelIndex::contact_2),
+                          static_cast<uint16_t>(FadeCandyContactPixelIndex::contact_2) +
+                              fade_candy_features::pixels_per_contact - 1);
+  leds_controller_.addLamp("right_back", static_cast<uint16_t>(FadeCandyContactPixelIndex::contact_4),
+                          static_cast<uint16_t>(FadeCandyContactPixelIndex::contact_4) +
+                              fade_candy_features::pixels_per_contact - 1);
+  leds_controller_.addLamp("left_back", static_cast<uint16_t>(FadeCandyContactPixelIndex::contact_6),
+                          static_cast<uint16_t>(FadeCandyContactPixelIndex::contact_6) +
+                              fade_candy_features::pixels_per_contact - 1);
 }
 
 bool LedLightsRosWrapper::changeAllLampsConfigurations(
     agribot_msgs::LampsControl::Request& req,   // NOLINT(runtime/references)
     agribot_msgs::LampsControl::Response& res)  // NOLINT(runtime/references)
 {
-  ledsController_.changeAllLampLightConfiguration(static_cast<colorTypes>(req.color), req.intensity,
+  leds_controller_.changeAllLampLightConfiguration(static_cast<Color>(req.color), req.intensity,
                                                   req.flash_period_in_miliseconds, req.fading_period_in_miliseconds);
   res.success = true;
   return true;
@@ -36,7 +40,7 @@ bool LedLightsRosWrapper::changeLampConfiguration(
     agribot_msgs::LampsControl::Request& req,   // NOLINT(runtime/references)
     agribot_msgs::LampsControl::Response& res)  // NOLINT(runtime/references)
 {
-  if (ledsController_.changeLampLightConfiguration(req.lamp, static_cast<colorTypes>(req.color), req.intensity,
+  if (leds_controller_.changeLampLightConfiguration(req.lamp, static_cast<Color>(req.color), req.intensity,
                                                    req.flash_period_in_miliseconds, req.fading_period_in_miliseconds))
   {
     res.success = true;
@@ -62,14 +66,14 @@ bool LedLightsRosWrapper::lampControlServiceCallback(
     return false;
   }
   // if intensity lower than 0.0 or greater than 1.0
-  if (!(req.intensity <= 100))
+  if (!(req.intensity <= static_cast<uint8_t>(fade_candy_features::intensity_scale)))
   {
     ROS_ERROR_STREAM("[hal_led_lights] Intensity cant be grater than 100");
     res.success = false;
     return false;
   }
   // if color is out of the enumerated value range, then
-  if (req.color >= color_count)
+  if (req.color >= static_cast<uint8_t>(Color::color_count))
   {
     ROS_ERROR_STREAM("[hal_led_lights] Requested color doesnt exist on the color list");
     res.success = false;
@@ -90,7 +94,7 @@ bool LedLightsRosWrapper::execute()
   ros::Rate loop_rate(10);
   while (ros::ok())
   {
-    if (!ledsController_.execute())
+    if (!leds_controller_.execute())
     {
       ROS_ERROR_STREAM("[hal_led_lights] Cant connect with OPC server");
     }

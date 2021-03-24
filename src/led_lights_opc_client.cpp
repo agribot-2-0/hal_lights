@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Agribot. All rights reserved.
+ * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
 #include <hal_led_lights/led_lights_opc_client.h>
@@ -27,9 +27,9 @@ LedLightsOPCClient::LedLightsOPCClient()
 }
 
 void LedLightsOPCClient::setPixelsData(
-    const std::vector<std::unique_ptr<colorInRGB>>& dataVector)
+    const std::vector<std::unique_ptr<ColorInRgb>>& dataVector)
 {
-  colorInRGB tempData;
+  ColorInRgb tempData;
   const auto index = getIndex(dataVector);
   for (auto it_pixel = dataVector.begin(); it_pixel != dataVector.end(); ++it_pixel)
   {
@@ -40,7 +40,7 @@ void LedLightsOPCClient::setPixelsData(
   }
 }
 
-void LedLightsOPCClient::setPixelFrameData(const uint pixel_ID, const colorInRGB& data)
+void LedLightsOPCClient::setPixelFrameData(const uint pixel_ID, const ColorInRgb& data)
 {
   uint16_t pixel_base_byte_position = frame_base_length + pixel_ID * rgb_bytes_per_pixel;
   frame_data_[pixel_base_byte_position + red_byte_position] = data.red;

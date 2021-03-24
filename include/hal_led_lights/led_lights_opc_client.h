@@ -1,9 +1,7 @@
 /*
- * Copyright (C) 2020 Agribot. All rights reserved.
+ * Copyright (C) 2021 Agribot. All rights reserved.
  */
-
-#ifndef HAL_LED_LIGHTS_LED_LIGHTS_OPC_CLIENT_H_
-#define HAL_LED_LIGHTS_LED_LIGHTS_OPC_CLIENT_H_
+#pragma once
 
 #include <hal_led_lights/opc_client.h>
 #include <hal_led_lights/led_lights_constants.h>
@@ -27,8 +25,8 @@ public:
   // helping lambda encapsulation for the easier index acces in for range-based loops
   template <typename Collection>
   auto getIndex(Collection const& collection);
-  void setPixelsData(const std::vector<std::unique_ptr<colorInRGB>>& dataVector);
-  void setPixelFrameData(const uint pixel_count, const colorInRGB& data);
+  void setPixelsData(const std::vector<std::unique_ptr<ColorInRgb>>& dataVector);
+  void setPixelFrameData(const uint pixel_count, const ColorInRgb& data);
   bool sendPixelsData();
 };
 
@@ -37,5 +35,3 @@ auto LedLightsOPCClient::getIndex(Collection const& collection)
 {
   return [&collection](auto const& iterator) { return std::distance(begin(collection), iterator); };
 }
-
-#endif  // HAL_LED_LIGHTS_LED_LIGHTS_OPC_CLIENT_H_
