@@ -4,6 +4,7 @@
 
 #pragma once
 #include <cstdint>
+#include <string>
 
 namespace fade_candy_features
 {
@@ -38,6 +39,24 @@ enum class Color
   light_blue = 7,
   purple = 8,
   color_count = 9
+};
+
+struct LampConfiguration
+{
+  std::string lamp_name;
+  Color color;
+  uint8_t intensity;
+  uint16_t periodFlashing;
+  uint16_t periodFading;
+
+  LampConfiguration()
+  {
+    lamp_name = "";
+    color = Color::black;
+    intensity = 100;
+    periodFlashing = 0;
+    periodFading = 0;
+  }
 };
 
 constexpr std::uint8_t channel = 0;
@@ -135,7 +154,7 @@ struct ColorInRgb
 
   void setIntensity(uint8_t intensity)
   {
-    if (intensity >= 0 && intensity <= 100)
+    if (intensity <= 100)
     {
       red = static_cast<uint8_t>(static_cast<float>(red) * (static_cast<float>(intensity) /
                                                             static_cast<float>(fade_candy_features::intensity_scale)));

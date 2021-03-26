@@ -5,7 +5,8 @@
 #pragma once
 
 #include <agribot_msgs/LampsControl.h>
-#include <hal_led_lights/led_lights_controller.h>
+#include <hal_led_lights/common/led_lights_constants.h>
+#include <hal_led_lights/LedLightsController/led_lights_controller.h>
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <iostream>
@@ -20,10 +21,11 @@ class LedLightsRosWrapper
 
   bool lampControlServiceCallback(agribot_msgs::LampsControl::Request& req,      // NOLINT(runtime/references)
                                   agribot_msgs::LampsControl::Response& res);    // NOLINT(runtime/references)
-  bool changeLampConfiguration(agribot_msgs::LampsControl::Request& req,         // NOLINT(runtime/references)
+  bool changeLampConfiguration(const LampConfiguration& config,
                                agribot_msgs::LampsControl::Response& res);       // NOLINT(runtime/references)
-  bool changeAllLampsConfigurations(agribot_msgs::LampsControl::Request& req,    // NOLINT(runtime/references)
+  bool changeAllLampsConfigurations(const LampConfiguration& config,
                                     agribot_msgs::LampsControl::Response& res);  // NOLINT(runtime/references)
+  void attemptToAddLamp(const std::string lamp_name, const uint16_t start_pixel, const uint16_t last_pixel);
 
 public:
   LedLightsRosWrapper(int argc, char** argv);

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <hal_led_lights/led_lights_constants.h>
+#include <hal_led_lights/common/led_lights_constants.h>
 #include <cstdint>
 #include <chrono>  // NOLINT [build/c++11]
 #include <iostream>

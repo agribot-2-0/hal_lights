@@ -4,6 +4,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(hal_lights)
 
+## Compilation options
+add_compile_options(-std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-variable)
+
+
 #############################################################################
 ## Find catkin packages and libraries for catkin and system dependencies   ##
 #############################################################################
@@ -40,9 +44,12 @@ include_directories(
  ${agribot_common_SOURCE_DIR}/include
 )
 
+list(APPEND cpp_files src/LightsNode/lights_node.cpp src/LedLightsRosWrapper/led_lights_ros_wrapper.cpp)
+list(APPEND cpp_files src/LedLightsController/led_lights_controller.cpp src/LedLightsOpcClient/led_lights_opc_client.cpp)
+list(APPEND cpp_files src/LedLamp/led_lamp.cpp)
+
 link_directories("${PROJECT_SOURCE_DIR}")
-add_executable(hal_lights_node src/lights_node.cpp src/led_lights_controller.cpp
-               src/led_lights_opc_client.cpp src/led_lamp.cpp src/led_lights_ros_wrapper.cpp)
+add_executable(hal_lights_node ${cpp_files})
 target_link_libraries(hal_lights_node ${agribot_common_LIBRARIES} ${catkin_LIBRARIES})
 
 add_dependencies(hal_lights_node ${catkin_EXPORTED_TARGETS})

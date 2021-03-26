@@ -2,14 +2,14 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/led_lights_opc_client.h>
+#include <hal_led_lights/LedLightsOpcClient/led_lights_opc_client.h>
 
 constexpr std::uint16_t lower_byte = 0x00FF;
 constexpr std::uint16_t higher_byte = 0xFF00;
 
-LedLightsOPCClient::LedLightsOPCClient()
+LedLightsOpcClient::LedLightsOpcClient() : opc_()
 {
-  opc_inited_ = false;
+  opc_host_resolved_ = false;
   // first byte of the light control frame is channel byte, always 0
   frame_data_.push_back(channel);
   // second byte is the command
@@ -26,7 +26,7 @@ LedLightsOPCClient::LedLightsOPCClient()
   }
 }
 
-void LedLightsOPCClient::setPixelsData(
+void LedLightsOpcClient::setPixelsData(
     const std::vector<std::unique_ptr<ColorInRgb>>& dataVector)
 {
   ColorInRgb tempData;
@@ -40,7 +40,7 @@ void LedLightsOPCClient::setPixelsData(
   }
 }
 
-void LedLightsOPCClient::setPixelFrameData(const uint pixel_ID, const ColorInRgb& data)
+void LedLightsOpcClient::setPixelFrameData(const uint pixel_ID, const ColorInRgb& data)
 {
   uint16_t pixel_base_byte_position = frame_base_length + pixel_ID * rgb_bytes_per_pixel;
   frame_data_[pixel_base_byte_position + red_byte_position] = data.red;
@@ -48,26 +48,18 @@ void LedLightsOPCClient::setPixelFrameData(const uint pixel_ID, const ColorInRgb
   frame_data_[pixel_base_byte_position + blue_byte_position] = data.blue;
 }
 
-bool LedLightsOPCClient::checkOPCConnection()
+bool LedLightsOpcClient::checkOpcConnection()
 {
-  if (!opc_inited_ || !opc_.isConnected())
-  {
-    return false;
-  }
-  else
-  {
-    return true;
-  }
+  return (opc_host_resolved_ && opc_.isConnected());
 }
 
-
-bool LedLightsOPCClient::initOPCConnection()
+bool LedLightsOpcClient::initOpcConnection()
 {
-  opc_inited_ = false;
+  opc_host_resolved_ = false;
   // first init the OPC client connection
   if (opc_.resolve("localhost"))
   {
-    opc_inited_ = true;
+    opc_host_resolved_ = true;
     return true;
   }
   else
@@ -76,26 +68,14 @@ bool LedLightsOPCClient::initOPCConnection()
   }
 }
 
-bool LedLightsOPCClient::sendPixelsData()
+bool LedLightsOpcClient::sendPixelsData()
 {
-  if (!checkOPCConnection())
+  if (!checkOpcConnection())
   {
-    if (!initOPCConnection())
+    if (!initOpcConnection())
     {
       return false;
     }
   }
-  if (opc_.write(frame_data_))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-LedLightsOPCClient::~LedLightsOPCClient()
-{
-  frame_data_.clear();
+  return opc_.write(frame_data_);
 }

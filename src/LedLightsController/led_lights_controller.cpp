@@ -2,7 +2,7 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/led_lights_controller.h>
+#include <hal_led_lights/LedLightsController/led_lights_controller.h>
 
 using ::uint8_t;
 
@@ -16,14 +16,9 @@ LedLightsController::LedLightsController()
   }
 }
 
-bool LedLightsController::connectWithOPCServer()
+bool LedLightsController::connectWithOpcServer()
 {
-  return opc_client_.initOPCConnection();
-}
-
-LedLightsController::~LedLightsController()
-{
-  leds_state_.clear();
+  return opc_client_.initOpcConnection();
 }
 
 ColorInRgb LedLightsController::getPixelValue(const std::uint8_t connector, const std::uint8_t pixel) const
@@ -44,87 +39,80 @@ bool LedLightsController::addLamp(const std::string& lamp_name, const uint16_t s
   // check if lamp with such a name already exists
   if (lamps_.find(lamp_name) != lamps_.end())
   {
-    std::cerr << "\nLamp name: " << lamp_name << " already exists!\n";
-    return false;
+    throw "\n Lamp name: " + lamp_name + " already exists!\n";
   }
   // check if proper led indexing is achieved
   if (start_led > stop_led)
   {
-    std::cerr << "\nLamp name: " << lamp_name << " Start led number must be lower than the stop led value!";
-    return false;
+    throw "\nLamp name: " + lamp_name + " Start led number must be lower than the stop led value!";
   }
   // if both conditions are good then create a led segment for this lamp
   LedSegment lamp_segment = { start_led, stop_led };
   LedSegment temporary;
   // then check if any lamp have the same sets of leds
-  for (const auto& lamp : lamps_)
+  for (const auto& [key, lamp] : lamps_)
   {
-    temporary = lamp.second->getLampPixels();
+    temporary = lamp->getLampPixels();
     // check if lamps pixels dont converge
     if (temporary.first_pixel_index >= lamp_segment.first_pixel_index &&
         temporary.first_pixel_index <= lamp_segment.last_pixel_index)
     {
-      std::cerr << "\nLamp name: " << lamp_name << " Lamps leds converge with lamp: " << lamp.first << "!\n";
-      return false;
+      throw "\nLamp name: " + lamp_name + " Lamps leds converge with lamp: " + key + "!\n";
     }
     if (temporary.last_pixel_index >= lamp_segment.first_pixel_index &&
         temporary.last_pixel_index <= lamp_segment.last_pixel_index)
     {
-      std::cerr << "\nLamp name: " << lamp_name << " Lamps leds converge with lamp: " << lamp.first << "!\n";
-      return false;
+      throw "\nLamp name: " + lamp_name + " Lamps leds converge with lamp: " + key + "!\n";
     }
   }
   // if they dont converge, then add lamp to the unordered map
   lamps_.insert(std::make_pair(lamp_name, std::move(std::make_unique<LedLamp>(lamp_segment))));
+  return true;
 }
 
-bool LedLightsController::changeAllLampLightConfiguration(const Color color, const uint8_t intensity,
-                                                          const uint16_t periodFlashing, const uint16_t periodFading)
+void LedLightsController::changeAllLampLightConfiguration(const LampConfiguration& config)
 {
-  for (auto& lamp : lamps_)
+  for (auto& [key, lamp] : lamps_)
   {
-    lamp.second->setColor(color);
-    lamp.second->setIntensity(intensity);
-    lamp.second->setFlashingPeriod(periodFlashing);
-    lamp.second->setFadingPeriod(periodFading);
+    lamp->setColor(config.color);
+    lamp->setIntensity(config.intensity);
+    lamp->setFlashingPeriod(config.periodFlashing);
+    lamp->setFadingPeriod(config.periodFading);
   }
 }
 
-bool LedLightsController::changeLampLightConfiguration(const std::string& lamp_name, const Color color,
-                                                       const uint8_t intensity, const uint16_t periodFlashing,
-                                                       const uint16_t periodFading)
+bool LedLightsController::changeLampLightConfiguration(const LampConfiguration& config)
 {
-  auto lamp_iterator = lamps_.find(lamp_name);
+  auto lamp_iterator = lamps_.find(config.lamp_name);
   if (lamp_iterator == lamps_.end())
   {
-    std::cerr << "\nLamp name: " << lamp_name << " doesnt exist!";
+    throw "\nLamp name: " + config.lamp_name + " doesnt exist!";
     return false;
   }
-  //
-  lamp_iterator->second->setColor(color);
-  lamp_iterator->second->setFlashingPeriod(periodFlashing);
-  lamp_iterator->second->setFadingPeriod(periodFading);
+  lamp_iterator->second->setColor(config.color);
+  lamp_iterator->second->setFlashingPeriod(config.periodFlashing);
+  lamp_iterator->second->setFadingPeriod(config.periodFading);
   return true;
 }
 
 void LedLightsController::debugWriteLampConfigurations()
 {
-  for (const auto& lamp : lamps_)
+  for (auto& [key, lamp] : lamps_)
   {
-    std::cout << "Lamp name: " << lamp.first << "\n";
-    std::cout << "First pixel: " << static_cast<int>(lamp.second->getLampPixels().first_pixel_index)
-              << " Last pixel: " << static_cast<int>(lamp.second->getLampPixels().last_pixel_index) << "\n";
-    std::cout << "Color: " << static_cast<int>(lamp.second->getColor()) << "\n";
-    std::cout << "Fading period: " << static_cast<int>(lamp.second->getFadingPeriod()) << "\n";
-    std::cout << "Flashing period: " << static_cast<int>(lamp.second->getFlashingPeriod()) << "\n";
+    std::cout << "Lamp name: " << key << "\n";
+    std::cout << "First pixel: " << static_cast<int>(lamp->getLampPixels().first_pixel_index)
+              << " Last pixel: " << static_cast<int>(lamp->getLampPixels().last_pixel_index) << "\n";
+    std::cout << "Color: " << static_cast<int>(lamp->getColor()) << "\n";
+    std::cout << "Fading period: " << static_cast<int>(lamp->getFadingPeriod()) << "\n";
+    std::cout << "Flashing period: " << static_cast<int>(lamp->getFlashingPeriod()) << "\n";
   }
 }
 
 void LedLightsController::setLedsStates()
 {
-  for (const auto& lamp : lamps_)
+  for (auto& [key, lamp] : lamps_)
   {
-    changeLampLedsColor(lamp.second);
+    changeLampLedsColor(lamp);
   }
 }
 
@@ -134,11 +122,11 @@ void LedLightsController::changeLampLedsColor(std::unique_ptr<LedLamp> const& la
   uint16_t lamp_leds_last_index = lamp->getLampPixels().last_pixel_index;
   ColorInRgb colorRGB;
   lamp->setLedsRGBvalues(&colorRGB);
-  for (uint16_t led_iterator = lamp_leds_base_index; led_iterator < lamp_leds_last_index; led_iterator++)
+  for (std::size_t led_position = lamp_leds_base_index; led_position < lamp_leds_last_index; led_position++)
   {
-    (*leds_state_[led_iterator]).red = colorRGB.red;
-    (*leds_state_[led_iterator]).green = colorRGB.green;
-    (*leds_state_[led_iterator]).blue = colorRGB.blue;
+    leds_state_[led_position]->red = colorRGB.red;
+    leds_state_[led_position]->green = colorRGB.green;
+    leds_state_[led_position]->blue = colorRGB.blue;
   }
 }
 
