@@ -2,7 +2,7 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/LedLightsController/led_lights_controller.h>
+#include <hal_led_lights/led_lights_controller/led_lights_controller.h>
 
 using ::uint8_t;
 

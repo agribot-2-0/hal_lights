@@ -2,7 +2,7 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/LedLightsRosWrapper/led_lights_ros_wrapper.h>
+#include <hal_led_lights/led_lights_ros_wrapper/led_lights_ros_wrapper.h>
 
 LedLightsRosWrapper::LedLightsRosWrapper(int argc, char** argv)
 {

@@ -44,9 +44,10 @@ include_directories(
  ${agribot_common_SOURCE_DIR}/include
 )
 
-list(APPEND cpp_files src/LightsNode/lights_node.cpp src/LedLightsRosWrapper/led_lights_ros_wrapper.cpp)
-list(APPEND cpp_files src/LedLightsController/led_lights_controller.cpp src/LedLightsOpcClient/led_lights_opc_client.cpp)
-list(APPEND cpp_files src/LedLamp/led_lamp.cpp)
+list(APPEND cpp_files src/lights_node/lights_node.cpp src/led_lights_ros_wrapper/led_lights_ros_wrapper.cpp)
+list(APPEND cpp_files src/led_lights_controller/led_lights_controller.cpp)
+list(APPEND cpp_files src/led_lights_opc_client/led_lights_opc_client.cpp)
+list(APPEND cpp_files src/led_lamp/led_lamp.cpp)
 
 link_directories("${PROJECT_SOURCE_DIR}")
 add_executable(hal_lights_node ${cpp_files})

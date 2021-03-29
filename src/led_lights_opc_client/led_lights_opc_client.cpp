@@ -2,7 +2,7 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/LedLightsOpcClient/led_lights_opc_client.h>
+#include <hal_led_lights/led_lights_opc_client/led_lights_opc_client.h>
 
 constexpr std::uint16_t lower_byte = 0x00FF;
 constexpr std::uint16_t higher_byte = 0xFF00;

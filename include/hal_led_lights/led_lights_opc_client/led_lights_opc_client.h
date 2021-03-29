@@ -3,7 +3,7 @@
  */
 #pragma once
 
-#include <hal_led_lights/external/OpcClient/opc_client.h>
+#include <hal_led_lights/external/opc_client/opc_client.h>
 #include <hal_led_lights/common/led_lights_constants.h>
 #include <vector>
 #include <memory>

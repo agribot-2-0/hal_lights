@@ -6,7 +6,7 @@
 
 #include <agribot_msgs/LampsControl.h>
 #include <hal_led_lights/common/led_lights_constants.h>
-#include <hal_led_lights/LedLightsController/led_lights_controller.h>
+#include <hal_led_lights/led_lights_controller/led_lights_controller.h>
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <iostream>

@@ -2,7 +2,7 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/LedLamp/led_lamp.h>
+#include <hal_led_lights/led_lamp/led_lamp.h>
 
 LedLamp::LedLamp(const LedSegment& pixels_segment)
 {

@@ -153,6 +153,10 @@ inline bool OpcClient::resolve(const char* hostport, int defaultPort)
   return success;
 }
 
+//**********************************************************
+//********************* IMPLEMENTATION *********************
+//**********************************************************
+
 inline bool OpcClient::isConnected()
 {
   return fd > 0;
