@@ -10,6 +10,7 @@
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <iostream>
+#include <stdexcept>
 #include <memory>
 #include <string>
 
@@ -19,13 +20,13 @@ class LedLightsRosWrapper
   std::unique_ptr<ros::NodeHandle> node_ptr_;
   ros::ServiceServer lamps_control_service_;
 
-  bool lampControlServiceCallback(agribot_msgs::LampsControl::Request& req,      // NOLINT(runtime/references)
-                                  agribot_msgs::LampsControl::Response& res);    // NOLINT(runtime/references)
+  bool lampControlServiceCallback(agribot_msgs::LampsControl::Request& req,    // NOLINT(runtime/references)
+                                  agribot_msgs::LampsControl::Response& res);  // NOLINT(runtime/references)
   bool changeLampConfiguration(const LampConfiguration& config,
-                               agribot_msgs::LampsControl::Response& res);       // NOLINT(runtime/references)
-  bool changeAllLampsConfigurations(const LampConfiguration& config,
+                               agribot_msgs::LampsControl::Response& res);  // NOLINT(runtime/references)
+  bool changeEveryLampConfiguration(const LampConfiguration& config,
                                     agribot_msgs::LampsControl::Response& res);  // NOLINT(runtime/references)
-  void attemptToAddLamp(const std::string lamp_name, const uint16_t start_pixel, const uint16_t last_pixel);
+  void addLamp(const std::string lamp_name, const std::uint16_t start_pixel, const std::uint16_t last_pixel);
 
 public:
   LedLightsRosWrapper(int argc, char** argv);

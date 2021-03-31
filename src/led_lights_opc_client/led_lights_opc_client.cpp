@@ -4,8 +4,11 @@
 
 #include <hal_led_lights/led_lights_opc_client/led_lights_opc_client.h>
 
-constexpr std::uint16_t lower_byte = 0x00FF;
-constexpr std::uint16_t higher_byte = 0xFF00;
+using std::uint8_t;
+using std::uint16_t;
+
+constexpr uint16_t lower_byte = 0x00FF;
+constexpr uint16_t higher_byte = 0xFF00;
 
 LedLightsOpcClient::LedLightsOpcClient() : opc_()
 {
@@ -16,9 +19,9 @@ LedLightsOpcClient::LedLightsOpcClient() : opc_()
   frame_data_.push_back(pixel_command);
   // third and fourth bytes are length
   // higher byte
-  frame_data_.push_back(static_cast<std::uint8_t>((frame_data_length & higher_byte) >> 8));
+  frame_data_.push_back(static_cast<uint8_t>((frame_data_length & higher_byte) >> 8));
   // lower byte
-  frame_data_.push_back(static_cast<std::uint8_t>(frame_data_length & lower_byte));
+  frame_data_.push_back(static_cast<uint8_t>(frame_data_length & lower_byte));
   // then comes data bytes, 3 for every led/pixel
   for (int vector_bytes_counter = 0; vector_bytes_counter < frame_data_length; vector_bytes_counter++)
   {
@@ -33,9 +36,9 @@ void LedLightsOpcClient::setPixelsData(
   const auto index = getIndex(dataVector);
   for (auto it_pixel = dataVector.begin(); it_pixel != dataVector.end(); ++it_pixel)
   {
-    tempData.red = (**it_pixel).red;
-    tempData.green = (**it_pixel).green;
-    tempData.blue = (**it_pixel).blue;
+    tempData.red_ = (**it_pixel).red_;
+    tempData.green_ = (**it_pixel).green_;
+    tempData.blue_ = (**it_pixel).blue_;
     setPixelFrameData(index(it_pixel), tempData);
   }
 }
@@ -43,9 +46,9 @@ void LedLightsOpcClient::setPixelsData(
 void LedLightsOpcClient::setPixelFrameData(const uint pixel_ID, const ColorInRgb& data)
 {
   uint16_t pixel_base_byte_position = frame_base_length + pixel_ID * rgb_bytes_per_pixel;
-  frame_data_[pixel_base_byte_position + red_byte_position] = data.red;
-  frame_data_[pixel_base_byte_position + green_byte_position] = data.green;
-  frame_data_[pixel_base_byte_position + blue_byte_position] = data.blue;
+  frame_data_[pixel_base_byte_position + red_byte_position] = data.red_;
+  frame_data_[pixel_base_byte_position + green_byte_position] = data.green_;
+  frame_data_[pixel_base_byte_position + blue_byte_position] = data.blue_;
 }
 
 bool LedLightsOpcClient::checkOpcConnection()

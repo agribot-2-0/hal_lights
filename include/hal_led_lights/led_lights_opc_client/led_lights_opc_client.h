@@ -23,14 +23,14 @@ public:
   bool initOpcConnection();
   // helping lambda encapsulation for the easier index acces in for range-based loops
   template <typename Collection>
-  auto getIndex(Collection const& collection);
+  auto getIndex(const Collection & collection);
   void setPixelsData(const std::vector<std::unique_ptr<ColorInRgb>>& dataVector);
   void setPixelFrameData(const uint pixel_count, const ColorInRgb& data);
   bool sendPixelsData();
 };
 
 template <typename Collection>
-auto LedLightsOpcClient::getIndex(Collection const& collection)
+auto LedLightsOpcClient::getIndex(const Collection & collection)
 {
-  return [&collection](auto const& iterator) { return std::distance(begin(collection), iterator); };
+  return [&collection](const auto & iterator) { return std::distance(begin(collection), iterator); };
 }

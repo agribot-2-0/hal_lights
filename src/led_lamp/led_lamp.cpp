@@ -4,6 +4,10 @@
 
 #include <hal_led_lights/led_lamp/led_lamp.h>
 
+using std::uint8_t;
+using std::uint16_t;
+using std::uint64_t;
+
 LedLamp::LedLamp(const LedSegment& pixels_segment)
 {
   // lamp off
@@ -11,7 +15,7 @@ LedLamp::LedLamp(const LedSegment& pixels_segment)
   intensity_ = 100;
   flashing_period_ms_ = 0;
   fading_period_ms_ = 0;
-  lamp_pixels_ = pixels_segment;
+  led_segment_ = pixels_segment;
   flash_togle_ = true;
 }
 
@@ -150,9 +154,9 @@ void LedLamp::setFadingPeriod(const uint16_t period)
   faded_color_ = color_;
 }
 
-void LedLamp::setLampPixels(const LedSegment& new_led_segment)
+void LedLamp::setLampSegment(const LedSegment& new_led_segment)
 {
-  lamp_pixels_ = new_led_segment;
+  led_segment_ = new_led_segment;
 }
 
 Color LedLamp::getColor() const
@@ -160,9 +164,9 @@ Color LedLamp::getColor() const
   return color_;
 }
 
-LedSegment LedLamp::getLampPixels() const
+LedSegment LedLamp::getLampSegment() const
 {
-  return lamp_pixels_;
+  return led_segment_;
 }
 
 uint16_t LedLamp::getFlashingPeriod() const

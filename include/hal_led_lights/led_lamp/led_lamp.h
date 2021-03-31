@@ -19,7 +19,7 @@ class LedLamp
   uint16_t flashing_period_ms_;
   uint64_t last_fading_time_;
   uint16_t fading_period_ms_;
-  LedSegment lamp_pixels_;
+  LedSegment led_segment_;
 
   inline bool checkIfTimerOverflown();
   inline void flashToggle();
@@ -36,10 +36,10 @@ public:
   void setColor(const Color color);
   void setFlashingPeriod(const uint16_t period);
   void setFadingPeriod(const uint16_t period);
-  void setLampPixels(const LedSegment& new_led_segmentlor);
+  void setLampSegment(const LedSegment& new_led_segment);
 
   uint16_t getFlashingPeriod() const;
   uint16_t getFadingPeriod() const;
   Color getColor() const;
-  LedSegment getLampPixels() const;
+  LedSegment getLampSegment() const;
 };

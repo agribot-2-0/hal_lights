@@ -7,6 +7,7 @@
 #include <hal_led_lights/led_lights_opc_client/led_lights_opc_client.h>
 #include <hal_led_lights/common/led_lights_constants.h>
 #include <unordered_map>
+#include <stdexcept>
 #include <vector>
 #include <memory>
 #include <tuple>
@@ -27,9 +28,9 @@ public:
   LedLightsController();
 
   bool addLamp(const std::string& lamp_name, const uint16_t start_led, const uint16_t stop_led);
-  void debugWriteLampConfigurations();
-  bool changeLampLightConfiguration(const LampConfiguration& conf);
-  void changeAllLampLightConfiguration(const LampConfiguration& conf);
+  std::string debugPrintLampConfigurations();
+  bool changeLampConfiguration(const LampConfiguration& conf);
+  void changeEveryLampConfiguration(const LampConfiguration& conf);
 
   void changePixel(const std::uint8_t connector, const std::uint8_t pixel, const ColorInRgb& pixel_value);
   ColorInRgb getPixelValue(const std::uint8_t connector, const std::uint8_t pixel) const;
