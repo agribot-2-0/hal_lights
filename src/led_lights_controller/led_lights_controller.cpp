@@ -54,13 +54,19 @@ bool LedLightsController::addLamp(const std::string& lamp_name, const uint16_t s
   {
     temporary = lamp->getLampSegment();
     // check if lamps pixels don't overlap
-    if (led_segment.last_pixel_index_ < temporary.first_pixel_index_)
+    if (!(led_segment.last_pixel_index_ < temporary.first_pixel_index_))
     {
-      throw std::invalid_argument("Lamp name: " + lamp_name + " Lamps leds overlap with lamp: " + key);
-    }
-    if (temporary.last_pixel_index_ < led_segment.first_pixel_index_)
-    {
-      throw std::invalid_argument("Lamp name: " + lamp_name + " Lamps leds overlap with lamp: " + key);
+      // throw std::invalid_argument("Lamp name: " + lamp_name + " Lamps leds overlap with lamp: " + key +
+      //                            std::to_string(led_segment.last_pixel_index_) + " < " +
+      //                            std::to_string(temporary.first_pixel_index_));
+      if (!(temporary.last_pixel_index_ < led_segment.first_pixel_index_))
+      {
+        throw std::invalid_argument(
+            "Lamp name: " + lamp_name + " " + std::to_string(led_segment.first_pixel_index_) + " " +
+            std::to_string(led_segment.last_pixel_index_) + " Lamps leds overlap with lamp: " + key +
+            " " + std::to_string(temporary.first_pixel_index_) + " " +
+            std::to_string(led_segment.first_pixel_index_));
+      }
     }
   }
   // if they don't overlap, then add lamp to the unordered map
@@ -88,6 +94,7 @@ bool LedLightsController::changeLampConfiguration(const LampConfiguration& confi
     return false;
   }
   lamp_iterator->second->setColor(config.color_);
+  lamp_iterator->second->setIntensity(config.intensity_);
   lamp_iterator->second->setFlashingPeriod(config.periodFlashing_);
   lamp_iterator->second->setFadingPeriod(config.periodFading_);
   return true;

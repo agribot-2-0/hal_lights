@@ -3,6 +3,7 @@
  */
 
 #pragma once
+#include <agribot_msgs/LampsControl.h>
 #include <cstdint>
 #include <string>
 
@@ -56,6 +57,31 @@ struct LampConfiguration
     intensity_ = 0;
     periodFlashing_ = 0;
     periodFading_ = 0;
+  }
+
+  void setName(std::uint8_t which_lamp)
+  {
+    switch (which_lamp)
+    {
+      case agribot_msgs::LampsControl::Request::right_front_lamp:
+        lamp_name_ = "right_front";
+        break;
+      case agribot_msgs::LampsControl::Request::left_front_lamp:
+        lamp_name_ = "left_front";
+        break;
+      case agribot_msgs::LampsControl::Request::right_back_lamp:
+        lamp_name_ = "right_back";
+        break;
+      case agribot_msgs::LampsControl::Request::left_back_lamp:
+        lamp_name_ = "left_back";
+        break;
+      case agribot_msgs::LampsControl::Request::control_to_all_lamps:
+        lamp_name_ = "ALL";
+        break;
+      default:
+        lamp_name_ = "";
+        break;
+    }
   }
 };
 
@@ -156,14 +182,15 @@ struct ColorInRgb
   {
     if (intensity <= fade_candy_features::intensity_scale)
     {
-      red_ = static_cast<uint8_t>(static_cast<float>(red_) * (static_cast<float>(intensity) /
-                                                            static_cast<float>(fade_candy_features::intensity_scale)));
+      red_ =
+          static_cast<uint8_t>(static_cast<float>(red_) * (static_cast<float>(intensity) /
+                                                           static_cast<float>(fade_candy_features::intensity_scale)));
       green_ =
           static_cast<uint8_t>(static_cast<float>(green_) * (static_cast<float>(intensity) /
-                                                            static_cast<float>(fade_candy_features::intensity_scale)));
+                                                             static_cast<float>(fade_candy_features::intensity_scale)));
       blue_ =
           static_cast<uint8_t>(static_cast<float>(blue_) * (static_cast<float>(intensity) /
-                                                           static_cast<float>(fade_candy_features::intensity_scale)));
+                                                            static_cast<float>(fade_candy_features::intensity_scale)));
     }
     else
     {

@@ -5,6 +5,9 @@
 #include <hal_led_lights/led_lights_ros_wrapper/led_lights_ros_wrapper.h>
 
 using std::uint16_t;
+using std::uint8_t;
+
+constexpr uint8_t max_lamp_bit = 0x80;
 
 LedLightsRosWrapper::LedLightsRosWrapper(int argc, char** argv)
 {
@@ -49,21 +52,62 @@ bool LedLightsRosWrapper::changeEveryLampConfiguration(
   return true;
 }
 
-bool LedLightsRosWrapper::changeLampConfiguration(
-    const LampConfiguration& config,
-    agribot_msgs::LampsControl::Response& res)  // NOLINT(runtime/references)
+bool LedLightsRosWrapper::changeLampConfiguration(const LampConfiguration& config)
 {
   try
   {
     leds_controller_.changeLampConfiguration(config);
-    res.success = true;
     return true;
   }
   catch (const std::exception* except)
   {
     ROS_ERROR_STREAM("[HalLights] " << std::string(except->what()) << '\n');
-    res.success = false;
     return false;
+  }
+}
+
+bool LedLightsRosWrapper::executeLampControlService(
+    agribot_msgs::LampsControl::Request& req,   // NOLINT(runtime/references)
+    agribot_msgs::LampsControl::Response& res)  // NOLINT(runtime/references)
+{
+  LampConfiguration config;
+  config.setName(req.lamp);
+  config.color_ = static_cast<Color>(req.color);
+  config.intensity_ = req.intensity;
+  config.periodFlashing_ = req.flash_period_in_miliseconds;
+  config.periodFading_ = req.fading_period_in_miliseconds;
+  if (config.lamp_name_ == "ALL")
+  {
+    return changeEveryLampConfiguration(config, res);
+  }
+  else
+  {
+    uint16_t lamp_mask = 1;
+    while (lamp_mask <= max_lamp_bit)
+    {
+      if ((req.lamp & lamp_mask) != 0)
+      {
+        config.setName(req.lamp & lamp_mask);
+        if (config.lamp_name_.empty())
+        {
+          ROS_ERROR_STREAM("[HalLights] Requested lamp: " + std::to_string(req.lamp & lamp_mask) +
+                           " doesn't exist on the list of possible lamp names");
+          res.success = false;
+          return false;
+        }
+        else
+        {
+          if (!changeLampConfiguration(config))
+          {
+            res.success = false;
+            return false;
+          }
+        }
+      }
+      lamp_mask = lamp_mask << 1;
+    }
+    res.success = true;
+    return true;
   }
 }
 
@@ -92,20 +136,7 @@ bool LedLightsRosWrapper::lampControlServiceCallback(
     res.success = false;
     return false;
   }
-  LampConfiguration config;
-  config.lamp_name_ = req.lamp;
-  config.color_ = static_cast<Color>(req.color);
-  config.intensity_ = req.intensity;
-  config.periodFlashing_ = req.flash_period_in_miliseconds;
-  config.periodFading_ = req.fading_period_in_miliseconds;
-  if (req.lamp == req.control_to_all_lamps)
-  {
-    return changeEveryLampConfiguration(config, res);
-  }
-  else
-  {
-    return changeLampConfiguration(config, res);
-  }
+  return executeLampControlService(req, res);
 }
 
 bool LedLightsRosWrapper::execute()

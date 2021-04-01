@@ -22,10 +22,11 @@ class LedLightsRosWrapper
 
   bool lampControlServiceCallback(agribot_msgs::LampsControl::Request& req,    // NOLINT(runtime/references)
                                   agribot_msgs::LampsControl::Response& res);  // NOLINT(runtime/references)
-  bool changeLampConfiguration(const LampConfiguration& config,
-                               agribot_msgs::LampsControl::Response& res);  // NOLINT(runtime/references)
+  bool changeLampConfiguration(const LampConfiguration& config);
   bool changeEveryLampConfiguration(const LampConfiguration& config,
                                     agribot_msgs::LampsControl::Response& res);  // NOLINT(runtime/references)
+  bool executeLampControlService(agribot_msgs::LampsControl::Request& req,       // NOLINT(runtime/references)
+                                 agribot_msgs::LampsControl::Response& res);     // NOLINT(runtime/references)
   void addLamp(const std::string lamp_name, const std::uint16_t start_pixel, const std::uint16_t last_pixel);
 
 public:
