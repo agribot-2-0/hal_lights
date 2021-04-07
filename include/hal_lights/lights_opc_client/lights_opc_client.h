@@ -3,34 +3,34 @@
  */
 #pragma once
 
-#include <hal_led_lights/external/opc_client/opc_client.h>
-#include <hal_led_lights/common/led_lights_constants.h>
+#include <hal_lights/external/opc_client/opc_client.h>
+#include <hal_lights/common/lights_constants.h>
 #include <vector>
 #include <memory>
 #include <tuple>
 #include <cstdint>
 #include <iostream>
 
-class LedLightsOpcClient
+class LightsOpcClient
 {
   OpcClient opc_;
   bool opc_host_resolved_;
   std::vector<std::uint8_t> frame_data_;
 
 public:
-  LedLightsOpcClient();
+  LightsOpcClient();
   bool checkOpcConnection();
   bool initOpcConnection();
   // helping lambda encapsulation for the easier index acces in for range-based loops
   template <typename Collection>
-  auto getIndex(const Collection & collection);
+  auto getIndex(const Collection& collection);
   void setPixelsData(const std::vector<std::unique_ptr<ColorInRgb>>& dataVector);
   void setPixelFrameData(const uint pixel_count, const ColorInRgb& data);
   bool sendPixelsData();
 };
 
 template <typename Collection>
-auto LedLightsOpcClient::getIndex(const Collection & collection)
+auto LightsOpcClient::getIndex(const Collection& collection)
 {
-  return [&collection](const auto & iterator) { return std::distance(begin(collection), iterator); };
+  return [&collection](const auto& iterator) { return std::distance(begin(collection), iterator); };
 }

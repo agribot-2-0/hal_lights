@@ -2,13 +2,13 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/led_lamp/led_lamp.h>
+#include <hal_lights/lamp/lamp.h>
 
-using std::uint8_t;
 using std::uint16_t;
 using std::uint64_t;
+using std::uint8_t;
 
-LedLamp::LedLamp(const LedSegment& pixels_segment)
+Lamp::Lamp(const LedSegment& pixels_segment)
 {
   // lamp off
   color_ = Color::black;
@@ -19,7 +19,7 @@ LedLamp::LedLamp(const LedSegment& pixels_segment)
   flash_togle_ = true;
 }
 
-inline bool LedLamp::checkIfTimerOverflown()
+inline bool Lamp::checkIfTimerOverflown()
 {
   // get the current time in miliseconds from the epoch
   uint64_t now = getTimeInMiliseconds();
@@ -34,12 +34,12 @@ inline bool LedLamp::checkIfTimerOverflown()
   }
 }
 
-inline void LedLamp::flashToggle()
+inline void Lamp::flashToggle()
 {
   flash_togle_ = !flash_togle_;
 }
 
-bool LedLamp::checkFlashState()
+bool Lamp::checkFlashState()
 {
   if (flashing_period_ms_ > 0)
   {
@@ -57,12 +57,12 @@ bool LedLamp::checkFlashState()
   }
 }
 
-void LedLamp::setColor(const Color new_color)
+void Lamp::setColor(const Color new_color)
 {
   color_ = new_color;
 }
 
-void LedLamp::setFlashingPeriod(const uint16_t period)
+void Lamp::setFlashingPeriod(const uint16_t period)
 {
   // reset flash variables
   flash_togle_ = true;
@@ -71,7 +71,7 @@ void LedLamp::setFlashingPeriod(const uint16_t period)
   flashing_period_ms_ = period;
 }
 
-void LedLamp::applyFading(ColorInRgb* rgb_to_fade, const Color color)
+void Lamp::applyFading(ColorInRgb* rgb_to_fade, const Color color)
 {
   // if the color request have changed, then start fading timer
   if (faded_color_ != color)
@@ -97,7 +97,7 @@ void LedLamp::applyFading(ColorInRgb* rgb_to_fade, const Color color)
   }
 }
 
-void LedLamp::setLedsRGBvalues(ColorInRgb* rgb_color)
+void Lamp::setLedsRGBvalues(ColorInRgb* rgb_color)
 {
   rgb_color->setColorRgb(color_);
   // set the colors base intensity
@@ -112,7 +112,7 @@ void LedLamp::setLedsRGBvalues(ColorInRgb* rgb_color)
   }
 }
 
-uint8_t LedLamp::getFadingMultiplier()
+uint8_t Lamp::getFadingMultiplier()
 {
   uint64_t now = getTimeInMiliseconds();
   if (fading_period_ms_ > 0 && ((now - last_fading_time_) <= fading_period_ms_))
@@ -135,46 +135,46 @@ uint8_t LedLamp::getFadingMultiplier()
   }
 }
 
-uint64_t inline LedLamp::getTimeInMiliseconds()
+uint64_t inline Lamp::getTimeInMiliseconds()
 {
   return static_cast<uint64_t>(
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
           .count());
 }
 
-void LedLamp::setIntensity(const uint8_t new_intensity)
+void Lamp::setIntensity(const uint8_t new_intensity)
 {
   intensity_ = new_intensity;
 }
 
-void LedLamp::setFadingPeriod(const uint16_t period)
+void Lamp::setFadingPeriod(const uint16_t period)
 {
   last_fading_time_ = getTimeInMiliseconds();
   fading_period_ms_ = period;
   faded_color_ = color_;
 }
 
-void LedLamp::setLampSegment(const LedSegment& new_led_segment)
+void Lamp::setLampSegment(const LedSegment& new_led_segment)
 {
   led_segment_ = new_led_segment;
 }
 
-Color LedLamp::getColor() const
+Color Lamp::getColor() const
 {
   return color_;
 }
 
-LedSegment LedLamp::getLampSegment() const
+LedSegment Lamp::getLampSegment() const
 {
   return led_segment_;
 }
 
-uint16_t LedLamp::getFlashingPeriod() const
+uint16_t Lamp::getFlashingPeriod() const
 {
   return flashing_period_ms_;
 }
 
-uint16_t LedLamp::getFadingPeriod() const
+uint16_t Lamp::getFadingPeriod() const
 {
   return fading_period_ms_;
 }

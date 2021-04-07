@@ -2,15 +2,15 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/led_lights_opc_client/led_lights_opc_client.h>
+#include <hal_lights/lights_opc_client/lights_opc_client.h>
 
-using std::uint8_t;
 using std::uint16_t;
+using std::uint8_t;
 
 constexpr uint16_t lower_byte = 0x00FF;
 constexpr uint16_t higher_byte = 0xFF00;
 
-LedLightsOpcClient::LedLightsOpcClient() : opc_()
+LightsOpcClient::LightsOpcClient() : opc_()
 {
   opc_host_resolved_ = false;
   // first byte of the light control frame is channel byte, always 0
@@ -29,8 +29,7 @@ LedLightsOpcClient::LedLightsOpcClient() : opc_()
   }
 }
 
-void LedLightsOpcClient::setPixelsData(
-    const std::vector<std::unique_ptr<ColorInRgb>>& dataVector)
+void LightsOpcClient::setPixelsData(const std::vector<std::unique_ptr<ColorInRgb>>& dataVector)
 {
   ColorInRgb tempData;
   const auto index = getIndex(dataVector);
@@ -43,7 +42,7 @@ void LedLightsOpcClient::setPixelsData(
   }
 }
 
-void LedLightsOpcClient::setPixelFrameData(const uint pixel_ID, const ColorInRgb& data)
+void LightsOpcClient::setPixelFrameData(const uint pixel_ID, const ColorInRgb& data)
 {
   uint16_t pixel_base_byte_position = frame_base_length + pixel_ID * rgb_bytes_per_pixel;
   frame_data_[pixel_base_byte_position + red_byte_position] = data.red_;
@@ -51,12 +50,12 @@ void LedLightsOpcClient::setPixelFrameData(const uint pixel_ID, const ColorInRgb
   frame_data_[pixel_base_byte_position + blue_byte_position] = data.blue_;
 }
 
-bool LedLightsOpcClient::checkOpcConnection()
+bool LightsOpcClient::checkOpcConnection()
 {
   return (opc_host_resolved_ && opc_.isConnected());
 }
 
-bool LedLightsOpcClient::initOpcConnection()
+bool LightsOpcClient::initOpcConnection()
 {
   opc_host_resolved_ = false;
   // first init the OPC client connection
@@ -71,7 +70,7 @@ bool LedLightsOpcClient::initOpcConnection()
   }
 }
 
-bool LedLightsOpcClient::sendPixelsData()
+bool LightsOpcClient::sendPixelsData()
 {
   if (!checkOpcConnection())
   {

@@ -2,19 +2,19 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/led_lights_ros_wrapper/led_lights_ros_wrapper.h>
+#include <hal_lights/lights_ros_wrapper/lights_ros_wrapper.h>
 
 using std::uint16_t;
 using std::uint8_t;
 
 constexpr uint8_t max_lamp_bit = 0x80;
 
-LedLightsRosWrapper::LedLightsRosWrapper(int argc, char** argv)
+LightsRosWrapper::LightsRosWrapper(int argc, char** argv)
 {
   ros::init(argc, argv, "hal_lights");
   node_ptr_ = std::make_unique<ros::NodeHandle>();
   lamps_control_service_ = node_ptr_->advertiseService("agribot/hal_lights/change_lamps_configuration",
-                                                       &LedLightsRosWrapper::lampControlServiceCallback, this);
+                                                       &LightsRosWrapper::lampControlServiceCallback, this);
 
   leds_controller_.connectWithOpcServer();
   addLamp("right_front", static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_0),
@@ -31,7 +31,7 @@ LedLightsRosWrapper::LedLightsRosWrapper(int argc, char** argv)
               1);
 }
 
-void LedLightsRosWrapper::addLamp(const std::string lamp_name, const uint16_t start_pixel, const uint16_t last_pixel)
+void LightsRosWrapper::addLamp(const std::string lamp_name, const uint16_t start_pixel, const uint16_t last_pixel)
 {
   try
   {
@@ -43,7 +43,7 @@ void LedLightsRosWrapper::addLamp(const std::string lamp_name, const uint16_t st
   }
 }
 
-bool LedLightsRosWrapper::changeEveryLampConfiguration(
+bool LightsRosWrapper::changeEveryLampConfiguration(
     const LampConfiguration& config,
     agribot_msgs::LampsControl::Response& res)  // NOLINT(runtime/references)
 {
@@ -52,7 +52,7 @@ bool LedLightsRosWrapper::changeEveryLampConfiguration(
   return true;
 }
 
-bool LedLightsRosWrapper::changeLampConfiguration(const LampConfiguration& config)
+bool LightsRosWrapper::changeLampConfiguration(const LampConfiguration& config)
 {
   try
   {
@@ -66,7 +66,7 @@ bool LedLightsRosWrapper::changeLampConfiguration(const LampConfiguration& confi
   }
 }
 
-bool LedLightsRosWrapper::executeLampControlService(
+bool LightsRosWrapper::executeLampControlService(
     agribot_msgs::LampsControl::Request& req,   // NOLINT(runtime/references)
     agribot_msgs::LampsControl::Response& res)  // NOLINT(runtime/references)
 {
@@ -111,7 +111,7 @@ bool LedLightsRosWrapper::executeLampControlService(
   }
 }
 
-bool LedLightsRosWrapper::lampControlServiceCallback(
+bool LightsRosWrapper::lampControlServiceCallback(
     agribot_msgs::LampsControl::Request& req,   // NOLINT(runtime/references)
     agribot_msgs::LampsControl::Response& res)  // NOLINT(runtime/references)
 {
@@ -139,7 +139,7 @@ bool LedLightsRosWrapper::lampControlServiceCallback(
   return executeLampControlService(req, res);
 }
 
-bool LedLightsRosWrapper::execute()
+bool LightsRosWrapper::execute()
 {
   ros::Rate loop_rate(10);
   while (ros::ok())

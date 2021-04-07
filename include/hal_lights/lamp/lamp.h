@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <hal_led_lights/common/led_lights_constants.h>
+#include <hal_lights/common/lights_constants.h>
 #include <cstdint>
 #include <chrono>  // NOLINT [build/c++11]
 #include <iostream>
 
-class LedLamp
+class Lamp
 {
   Color color_;
   uint8_t intensity_;
@@ -28,7 +28,7 @@ class LedLamp
   uint64_t inline getTimeInMiliseconds();
 
 public:
-  explicit LedLamp(const LedSegment& lamp_leds);
+  explicit Lamp(const LedSegment& lamp_leds);
   void setLedsRGBvalues(ColorInRgb* rgb_color);
   void applyFading(ColorInRgb* rgb_to_fade, const Color color);
 

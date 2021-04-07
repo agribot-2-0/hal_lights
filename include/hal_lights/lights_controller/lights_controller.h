@@ -3,9 +3,9 @@
  */
 #pragma once
 
-#include <hal_led_lights/led_lamp/led_lamp.h>
-#include <hal_led_lights/led_lights_opc_client/led_lights_opc_client.h>
-#include <hal_led_lights/common/led_lights_constants.h>
+#include <hal_lights/lamp/lamp.h>
+#include <hal_lights/lights_opc_client/lights_opc_client.h>
+#include <hal_lights/common/lights_constants.h>
 #include <unordered_map>
 #include <stdexcept>
 #include <vector>
@@ -15,17 +15,17 @@
 #include <cstdint>
 #include <iostream>
 
-class LedLightsController
+class LightsController
 {
   std::vector<std::unique_ptr<ColorInRgb>> leds_state_;
-  std::unordered_map<std::string, std::unique_ptr<LedLamp>> lamps_;
-  LedLightsOpcClient opc_client_;
+  std::unordered_map<std::string, std::unique_ptr<Lamp>> lamps_;
+  LightsOpcClient opc_client_;
 
-  void changeLampLedsColor(std::unique_ptr<LedLamp> const& lamp);
+  void changeLampLedsColor(std::unique_ptr<Lamp> const& lamp);
   void setLedsStates();
 
 public:
-  LedLightsController();
+  LightsController();
 
   bool addLamp(const std::string& lamp_name, const uint16_t start_led, const uint16_t stop_led);
   std::string debugPrintLampConfigurations();

@@ -2,39 +2,39 @@
  * Copyright (C) 2021 Agribot. All rights reserved.
  */
 
-#include <hal_led_lights/led_lights_controller/led_lights_controller.h>
+#include <hal_lights/lights_controller/lights_controller.h>
 
 using std::uint16_t;
 using std::uint8_t;
 
-LedLightsController::LedLightsController()
+LightsController::LightsController()
 {
   // maximum number of leds for one fadecandy
-  for (uint pixel_iterator = 0; pixel_iterator < fade_candy_features::max_pixels_number; pixel_iterator++)
+  for (std::size_t pixel_iterator = 0; pixel_iterator < fade_candy_features::max_pixels_number; pixel_iterator++)
   {
     leds_state_.push_back(std::make_unique<ColorInRgb>(fade_candy_features::led_off, fade_candy_features::led_off,
                                                        fade_candy_features::led_off));
   }
 }
 
-bool LedLightsController::connectWithOpcServer()
+bool LightsController::connectWithOpcServer()
 {
   return opc_client_.initOpcConnection();
 }
 
-ColorInRgb LedLightsController::getPixelValue(const uint8_t connector, const uint8_t pixel) const
+ColorInRgb LightsController::getPixelValue(const uint8_t connector, const uint8_t pixel) const
 {
   return *leds_state_[connector * fade_candy_features::pixels_per_contact + pixel];
 }
 
-void LedLightsController::changePixel(const uint8_t connector, const uint8_t pixel, const ColorInRgb& pixel_value)
+void LightsController::changePixel(const uint8_t connector, const uint8_t pixel, const ColorInRgb& pixel_value)
 {
   (leds_state_[connector * fade_candy_features::pixels_per_contact + pixel])->red_ = pixel_value.red_;
   (leds_state_[connector * fade_candy_features::pixels_per_contact + pixel])->green_ = pixel_value.green_;
   (leds_state_[connector * fade_candy_features::pixels_per_contact + pixel])->blue_ = pixel_value.blue_;
 }
 
-bool LedLightsController::addLamp(const std::string& lamp_name, const uint16_t start_led, const uint16_t stop_led)
+bool LightsController::addLamp(const std::string& lamp_name, const uint16_t start_led, const uint16_t stop_led)
 {
   // check if lamp with such a name already exists
   if (lamps_.find(lamp_name) != lamps_.end())
@@ -56,25 +56,21 @@ bool LedLightsController::addLamp(const std::string& lamp_name, const uint16_t s
     // check if lamps pixels don't overlap
     if (!(led_segment.last_pixel_index_ < temporary.first_pixel_index_))
     {
-      // throw std::invalid_argument("Lamp name: " + lamp_name + " Lamps leds overlap with lamp: " + key +
-      //                            std::to_string(led_segment.last_pixel_index_) + " < " +
-      //                            std::to_string(temporary.first_pixel_index_));
       if (!(temporary.last_pixel_index_ < led_segment.first_pixel_index_))
       {
         throw std::invalid_argument(
             "Lamp name: " + lamp_name + " " + std::to_string(led_segment.first_pixel_index_) + " " +
-            std::to_string(led_segment.last_pixel_index_) + " Lamps leds overlap with lamp: " + key +
-            " " + std::to_string(temporary.first_pixel_index_) + " " +
-            std::to_string(led_segment.first_pixel_index_));
+            std::to_string(led_segment.last_pixel_index_) + " Lamps leds overlap with lamp: " + key + " " +
+            std::to_string(temporary.first_pixel_index_) + " " + std::to_string(led_segment.first_pixel_index_));
       }
     }
   }
   // if they don't overlap, then add lamp to the unordered map
-  lamps_.insert(std::make_pair(lamp_name, std::make_unique<LedLamp>(led_segment)));
+  lamps_.insert(std::make_pair(lamp_name, std::make_unique<Lamp>(led_segment)));
   return true;
 }
 
-void LedLightsController::changeEveryLampConfiguration(const LampConfiguration& config)
+void LightsController::changeEveryLampConfiguration(const LampConfiguration& config)
 {
   for (auto& [key, lamp] : lamps_)
   {
@@ -85,7 +81,7 @@ void LedLightsController::changeEveryLampConfiguration(const LampConfiguration& 
   }
 }
 
-bool LedLightsController::changeLampConfiguration(const LampConfiguration& config)
+bool LightsController::changeLampConfiguration(const LampConfiguration& config)
 {
   auto lamp_iterator = lamps_.find(config.lamp_name_);
   if (lamp_iterator == lamps_.end())
@@ -100,7 +96,7 @@ bool LedLightsController::changeLampConfiguration(const LampConfiguration& confi
   return true;
 }
 
-std::string LedLightsController::debugPrintLampConfigurations()
+std::string LightsController::debugPrintLampConfigurations()
 {
   std::string printed_msg = "";
   for (const auto& [key, lamp] : lamps_)
@@ -118,7 +114,7 @@ std::string LedLightsController::debugPrintLampConfigurations()
   return printed_msg;
 }
 
-void LedLightsController::setLedsStates()
+void LightsController::setLedsStates()
 {
   for (auto& [key, lamp] : lamps_)
   {
@@ -126,7 +122,7 @@ void LedLightsController::setLedsStates()
   }
 }
 
-void LedLightsController::changeLampLedsColor(std::unique_ptr<LedLamp> const& lamp)
+void LightsController::changeLampLedsColor(std::unique_ptr<Lamp> const& lamp)
 {
   uint16_t lamp_leds_base_index = lamp->getLampSegment().first_pixel_index_;
   uint16_t lamp_leds_last_index = lamp->getLampSegment().last_pixel_index_;
@@ -140,7 +136,7 @@ void LedLightsController::changeLampLedsColor(std::unique_ptr<LedLamp> const& la
   }
 }
 
-bool LedLightsController::execute()
+bool LightsController::execute()
 {
   setLedsStates();
   opc_client_.setPixelsData(leds_state_);
