@@ -24,14 +24,14 @@ bool LightsController::connectWithOpcServer()
 
 ColorInRgb LightsController::getPixelValue(const uint8_t connector, const uint8_t pixel) const
 {
-  return *leds_state_[connector * fade_candy_features::pixels_per_contact + pixel];
+  return *leds_state_[connector * fade_candy_features::pixels_per_data_line + pixel];
 }
 
 void LightsController::changePixel(const uint8_t connector, const uint8_t pixel, const ColorInRgb& pixel_value)
 {
-  (leds_state_[connector * fade_candy_features::pixels_per_contact + pixel])->red_ = pixel_value.red_;
-  (leds_state_[connector * fade_candy_features::pixels_per_contact + pixel])->green_ = pixel_value.green_;
-  (leds_state_[connector * fade_candy_features::pixels_per_contact + pixel])->blue_ = pixel_value.blue_;
+  (leds_state_[connector * fade_candy_features::pixels_per_data_line + pixel])->red_ = pixel_value.red_;
+  (leds_state_[connector * fade_candy_features::pixels_per_data_line + pixel])->green_ = pixel_value.green_;
+  (leds_state_[connector * fade_candy_features::pixels_per_data_line + pixel])->blue_ = pixel_value.blue_;
 }
 
 bool LightsController::addLamp(const std::string& lamp_name, const uint16_t start_led, const uint16_t stop_led)
@@ -39,7 +39,7 @@ bool LightsController::addLamp(const std::string& lamp_name, const uint16_t star
   // check if lamp with such a name already exists
   if (lamps_.find(lamp_name) != lamps_.end())
   {
-    throw std::out_of_range(" Lamp name: " + lamp_name + " already exists!");
+    throw std::out_of_range("Lamp name: " + lamp_name + " already exists!");
   }
   // check if proper led indexing is achieved
   if (start_led > stop_led)
@@ -76,8 +76,8 @@ void LightsController::changeEveryLampConfiguration(const LampConfiguration& con
   {
     lamp->setColor(config.color_);
     lamp->setIntensity(config.intensity_);
-    lamp->setFlashingPeriod(config.periodFlashing_);
-    lamp->setFadingPeriod(config.periodFading_);
+    lamp->setFlashingPeriod(config.period_flashing_);
+    lamp->setFadingPeriod(config.period_fading_);
   }
 }
 
@@ -91,8 +91,8 @@ bool LightsController::changeLampConfiguration(const LampConfiguration& config)
   }
   lamp_iterator->second->setColor(config.color_);
   lamp_iterator->second->setIntensity(config.intensity_);
-  lamp_iterator->second->setFlashingPeriod(config.periodFlashing_);
-  lamp_iterator->second->setFadingPeriod(config.periodFading_);
+  lamp_iterator->second->setFlashingPeriod(config.period_flashing_);
+  lamp_iterator->second->setFadingPeriod(config.period_fading_);
   return true;
 }
 

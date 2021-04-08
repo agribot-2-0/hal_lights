@@ -9,7 +9,7 @@
 
 namespace fade_candy_features
 {
-constexpr std::uint16_t pixels_per_contact = 64;
+constexpr std::uint16_t pixels_per_data_line = 64;
 constexpr std::uint16_t max_pixels_number = 512;
 constexpr std::uint8_t led_off = 0x00;
 constexpr std::uint8_t intensity_scale = 100;
@@ -17,14 +17,14 @@ constexpr std::uint8_t intensity_scale = 100;
 
 enum class FadeCandyDataLinePixelIndex
 {
-  data_line_0 = 0 * fade_candy_features::pixels_per_contact,
-  data_line_1 = 1 * fade_candy_features::pixels_per_contact,
-  data_line_2 = 2 * fade_candy_features::pixels_per_contact,
-  data_line_3 = 3 * fade_candy_features::pixels_per_contact,
-  data_line_4 = 4 * fade_candy_features::pixels_per_contact,
-  data_line_5 = 5 * fade_candy_features::pixels_per_contact,
-  data_line_6 = 6 * fade_candy_features::pixels_per_contact,
-  data_line_7 = 7 * fade_candy_features::pixels_per_contact
+  data_line_0 = 0 * fade_candy_features::pixels_per_data_line,
+  data_line_1 = 1 * fade_candy_features::pixels_per_data_line,
+  data_line_2 = 2 * fade_candy_features::pixels_per_data_line,
+  data_line_3 = 3 * fade_candy_features::pixels_per_data_line,
+  data_line_4 = 4 * fade_candy_features::pixels_per_data_line,
+  data_line_5 = 5 * fade_candy_features::pixels_per_data_line,
+  data_line_6 = 6 * fade_candy_features::pixels_per_data_line,
+  data_line_7 = 7 * fade_candy_features::pixels_per_data_line
 };
 
 // the content of this enum must be updated with the lamp control service file constants
@@ -47,16 +47,16 @@ struct LampConfiguration
   std::string lamp_name_;
   Color color_;
   std::uint8_t intensity_;
-  std::uint16_t periodFlashing_;
-  std::uint16_t periodFading_;
+  std::uint16_t period_flashing_;
+  std::uint16_t period_fading_;
 
   LampConfiguration()
   {
     lamp_name_ = "";
     color_ = Color::black;
     intensity_ = 0;
-    periodFlashing_ = 0;
-    periodFading_ = 0;
+    period_flashing_ = 0;
+    period_fading_ = 0;
   }
 
   void setName(std::uint8_t which_lamp)

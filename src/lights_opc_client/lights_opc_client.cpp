@@ -32,13 +32,14 @@ LightsOpcClient::LightsOpcClient() : opc_()
 void LightsOpcClient::setPixelsData(const std::vector<std::unique_ptr<ColorInRgb>>& dataVector)
 {
   ColorInRgb tempData;
-  const auto index = getIndex(dataVector);
-  for (auto it_pixel = dataVector.begin(); it_pixel != dataVector.end(); ++it_pixel)
+  size_t index = 0;
+  for (const auto& it_pixel : dataVector)
   {
-    tempData.red_ = (**it_pixel).red_;
-    tempData.green_ = (**it_pixel).green_;
-    tempData.blue_ = (**it_pixel).blue_;
-    setPixelFrameData(index(it_pixel), tempData);
+    tempData.red_ = it_pixel->red_;
+    tempData.green_ = it_pixel->green_;
+    tempData.blue_ = it_pixel->blue_;
+    setPixelFrameData(index, tempData);
+    ++index;
   }
 }
 

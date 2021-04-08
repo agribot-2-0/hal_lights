@@ -18,16 +18,16 @@ LightsRosWrapper::LightsRosWrapper(int argc, char** argv)
 
   leds_controller_.connectWithOpcServer();
   addLamp("right_front", static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_0),
-          static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_0) + fade_candy_features::pixels_per_contact -
+          static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_0) + fade_candy_features::pixels_per_data_line -
               1);
   addLamp("left_front", static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_2),
-          static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_2) + fade_candy_features::pixels_per_contact -
+          static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_2) + fade_candy_features::pixels_per_data_line -
               1);
   addLamp("right_back", static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_4),
-          static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_4) + fade_candy_features::pixels_per_contact -
+          static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_4) + fade_candy_features::pixels_per_data_line -
               1);
   addLamp("left_back", static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_6),
-          static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_6) + fade_candy_features::pixels_per_contact -
+          static_cast<uint16_t>(FadeCandyDataLinePixelIndex::data_line_6) + fade_candy_features::pixels_per_data_line -
               1);
 }
 
@@ -74,8 +74,8 @@ bool LightsRosWrapper::executeLampControlService(
   config.setName(req.lamp);
   config.color_ = static_cast<Color>(req.color);
   config.intensity_ = req.intensity;
-  config.periodFlashing_ = req.flash_period_in_miliseconds;
-  config.periodFading_ = req.fading_period_in_miliseconds;
+  config.period_flashing_ = req.flash_period_in_miliseconds;
+  config.period_fading_ = req.fading_period_in_miliseconds;
   if (config.lamp_name_ == "ALL")
   {
     return changeEveryLampConfiguration(config, res);
