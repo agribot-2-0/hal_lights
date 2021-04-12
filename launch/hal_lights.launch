@@ -1,0 +1,3 @@
+<launch>
+    <node name="hal_lights_node" pkg="hal_lights" type="hal_lights_node"/>
+</launch>

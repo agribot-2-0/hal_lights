@@ -1,0 +1,180 @@
+/*
+ * Copyright (C) 2021 Agribot. All rights reserved.
+ */
+
+#include <hal_lights/lamp/lamp.h>
+
+using std::uint16_t;
+using std::uint64_t;
+using std::uint8_t;
+
+Lamp::Lamp(const LedSegment& lamp_leds)
+{
+  // lamp off
+  color_ = Color::black;
+  intensity_ = 100;
+  flashing_period_ms_ = 0;
+  fading_period_ms_ = 0;
+  led_segment_ = lamp_leds;
+  flash_toggle_ = true;
+}
+
+inline bool Lamp::checkIfTimerOverflown()
+{
+  // get the current time in miliseconds from the epoch
+  uint64_t now = getTimeInMiliseconds();
+  if ((now - last_flash_time_) >= flashing_period_ms_)
+  {
+    last_flash_time_ = now;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+inline void Lamp::flashToggle()
+{
+  flash_toggle_ = !flash_toggle_;
+}
+
+bool Lamp::checkFlashState()
+{
+  if (flashing_period_ms_ > 0)
+  {
+    // if timer overflown, change the current flash state
+    if (checkIfTimerOverflown())
+    {
+      flashToggle();
+    }
+    return flash_toggle_;
+  }
+  // if flashing period is 0, then lamp is always ON
+  else
+  {
+    return true;
+  }
+}
+
+void Lamp::setColor(const Color new_color)
+{
+  color_ = new_color;
+}
+
+void Lamp::setFlashingPeriod(const uint16_t period)
+{
+  // reset flash variables
+  flash_toggle_ = true;
+  last_flash_time_ = getTimeInMiliseconds();
+  // set new period
+  flashing_period_ms_ = period;
+}
+
+void Lamp::applyFading(ColorInRgb* rgb_to_fade, const Color color)
+{
+  // if the color request have changed, then start fading timer
+  if (faded_color_ != color)
+  {
+    last_fading_time_ = getTimeInMiliseconds();
+  }
+  // if changed to black, then fade the color to black
+  if (color == Color::black)
+  {
+    rgb_to_fade->setIntensity(fade_candy_features::intensity_scale - getFadingMultiplier());
+    faded_color_ = color;
+  }
+  // if we come back to lamp color then fadeback to it
+  else if (color == color_)
+  {
+    rgb_to_fade->setIntensity(getFadingMultiplier());
+    faded_color_ = color;
+  }
+  // if it is not the lamp color, or black color, then just light up the requested colour
+  else
+  {
+    rgb_to_fade->setColorRgb(color);
+  }
+}
+
+void Lamp::setLedsRGBvalues(ColorInRgb* rgb_color)
+{
+  rgb_color->setColorRgb(color_);
+  // set the colors base intensity
+  rgb_color->setIntensity(intensity_);
+  if (checkFlashState())
+  {
+    applyFading(rgb_color, color_);
+  }
+  else
+  {
+    applyFading(rgb_color, Color::black);
+  }
+}
+
+uint8_t Lamp::getFadingMultiplier() const
+{
+  uint64_t now = getTimeInMiliseconds();
+  if (fading_period_ms_ > 0 && ((now - last_fading_time_) <= fading_period_ms_))
+  {
+    uint8_t multiplier =
+        static_cast<uint8_t>((static_cast<float>(now - last_fading_time_) / static_cast<float>(fading_period_ms_)) *
+                             static_cast<float>(fade_candy_features::intensity_scale));
+    if (multiplier < fade_candy_features::intensity_scale)
+    {
+      return multiplier;
+    }
+    else
+    {
+      return fade_candy_features::intensity_scale;
+    }
+  }
+  else
+  {
+    return fade_candy_features::intensity_scale;
+  }
+}
+
+uint64_t inline Lamp::getTimeInMiliseconds() const
+{
+  return static_cast<uint64_t>(
+      std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
+          .count());
+}
+
+void Lamp::setIntensity(const uint8_t new_intensity)
+{
+  intensity_ = new_intensity;
+}
+
+void Lamp::setFadingPeriod(const uint16_t period)
+{
+  last_fading_time_ = getTimeInMiliseconds();
+  fading_period_ms_ = period;
+  faded_color_ = color_;
+}
+
+void Lamp::setLampSegment(const LedSegment& new_led_segment)
+{
+  led_segment_ = new_led_segment;
+}
+
+Color Lamp::getColor() const
+{
+  return color_;
+}
+
+LedSegment Lamp::getLampSegment() const
+{
+  return led_segment_;
+}
+
+uint16_t Lamp::getFlashingPeriod() const
+{
+  return flashing_period_ms_;
+}
+
+uint16_t Lamp::getFadingPeriod() const
+{
+  return fading_period_ms_;
+}

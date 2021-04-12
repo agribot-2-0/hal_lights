@@ -1,0 +1,96 @@
+@startuml
+class OpcClient
+{
+-fd : int
+-address : struct sockaddr_in
+-connectSocket() : bool
+-closeSocket() : void
++OpcClient()
++~OpcClient()
++resolve(char* hostport, int defaultPort = 7890) : bool
++write(const std::vector<uint8_t>& data) : bool
++tryConnect() : bool
++isConnected() : bool
+}
+
+class Lamp
+{
+-color_ : Color
+-intensity_ : uint8_t
+-faded_color_ : Color
+-last_flash_time_ : uint64_t
+-flash_togle_ : bool
+-flashing_period_ms_ : uint16_t
+-last_fading_time_ : uint64_t
+-fading_period_ms_ : uint16_t
+-led_segment_ : LedSegment
+-checkIfTimerOverflown() : inline bool
+-flashToggle() : inline void
+-checkFlashState() : bool
+-getFadingMultiplier() : uint8_t
+-inline getTimeInMiliseconds() : uint64_t
++Lamp(const LedSegment& lamp_leds)
++setLedsRGBvalues(ColorInRgb* rgb_color) : void
++applyFading(ColorInRgb* rgb_to_fade, const Color color) : void
++setIntensity(const uint8_t new_intensity) : void
++setColor(const Color color) : void
++setFlashingPeriod(const uint16_t period) : void
++setFadingPeriod(const uint16_t period) : void
++setLampSegment(const LedSegment& new_led_segment) : void
++getFlashingPeriod() const : uint16_t
++getFadingPeriod() const : uint16_t
++getColor() const : Color
++getLampSegment() const : LedSegment
+}
+
+class LightsController
+{
+-leds_state_ : std::vector<std::unique_ptr<ColorInRgb>>
+-lamps_ : std::unordered_map<std::string, std::unique_ptr<Lamp>>
+-opc_client_ : LightsOpcClient
+-changeLampLedsColor(std::unique_ptr<Lamp> const& lamp) : void
+-setLedsStates() : void
++LightsController()
++addLamp(const std::string& lamp_name, const uint16_t start_led, const uint16_t stop_led) : bool
++debugPrintLampConfigurations() : std::string 
++changeLampConfiguration(const LampConfiguration& conf) : bool
++changeEveryLampConfiguration(const LampConfiguration& conf) : void
++changePixel(const std::uint8_t connector, const std::uint8_t pixel, const ColorInRgb& pixel_value) : void
++getPixelValue(const std::uint8_t connector, const std::uint8_t pixel) const : ColorInRgb
++connectWithOpcServer() : bool
++execute() : bool
+}
+
+class LightsOpcClient
+{
+-opc_ : OpcClient
+-opc_host_resolved_ : bool
+-frame_data_ : std::vector<std::uint8_t>
++LightsOpcClient()
++checkOpcConnection() : bool
++initOpcConnection() : bool
++template <typename Collection> getIndex(const Collection& collection) : auto
++setPixelsData(const std::vector<std::unique_ptr<ColorInRgb>>& dataVector) : void
++setPixelFrameData(const uint pixel_count, const ColorInRgb& data) : void
++sendPixelsData() : bool
+}
+
+class LightsRosWrapper
+{
+-leds_controller_ : LightsController
+-node_ptr_ : std::unique_ptr<ros::NodeHandle>
+-lamps_control_service_ : ros::ServiceServer
+-lampControlServiceCallback(agribot_msgs::LampsControl::Request& req, agribot_msgs::LampsControl::Response& res) : bool
+-changeLampConfiguration(const LampConfiguration& config) : bool
+-changeEveryLampConfiguration(const LampConfiguration& config, agribot_msgs::LampsControl::Response& res) : bool
+-executeLampControlService(agribot_msgs::LampsControl::Request& req, agribot_msgs::LampsControl::Response& res) : bool
+-addLamp(const std::string lamp_name, const std::uint16_t start_pixel, const std::uint16_t last_pixel) : void
++LightsRosWrapper(int argc, char** argv)
++execute() : bool
+}
+
+LightsRosWrapper *-- LightsController : contains
+LightsController *-- LightsOpcClient : contains
+LightsController *-- "0..* " Lamp : contains
+LightsOpcClient *-- OpcClient : contains
+@enduml
