@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(hal_lights)
 
 ## Compilation options
-add_compile_options(-std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-variable)
+add_compile_options(-std=c++17 -Wall -Wextra -pedantic -Werror)
 
 
 #############################################################################

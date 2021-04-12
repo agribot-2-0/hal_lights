@@ -21,7 +21,7 @@ class LightsController
   std::unordered_map<std::string, std::unique_ptr<Lamp>> lamps_;
   LightsOpcClient opc_client_;
 
-  void changeLampLedsColor(std::unique_ptr<Lamp> const& lamp);
+  void changeLampLedsColor(const std::unique_ptr<Lamp> &lamp);
   void setLedsStates();
 
 public:

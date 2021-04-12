@@ -194,9 +194,9 @@ struct ColorInRgb
     }
     else
     {
-      red_ = 0;
-      green_ = 0;
-      blue_ = 0;
+      red_ = 0xFF;
+      green_ = 0xFF;
+      blue_ = 0xFF;
     }
   }
 };

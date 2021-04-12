@@ -8,15 +8,15 @@ using std::uint16_t;
 using std::uint64_t;
 using std::uint8_t;
 
-Lamp::Lamp(const LedSegment& pixels_segment)
+Lamp::Lamp(const LedSegment& lamp_leds)
 {
   // lamp off
   color_ = Color::black;
   intensity_ = 100;
   flashing_period_ms_ = 0;
   fading_period_ms_ = 0;
-  led_segment_ = pixels_segment;
-  flash_togle_ = true;
+  led_segment_ = lamp_leds;
+  flash_toggle_ = true;
 }
 
 inline bool Lamp::checkIfTimerOverflown()
@@ -36,7 +36,7 @@ inline bool Lamp::checkIfTimerOverflown()
 
 inline void Lamp::flashToggle()
 {
-  flash_togle_ = !flash_togle_;
+  flash_toggle_ = !flash_toggle_;
 }
 
 bool Lamp::checkFlashState()
@@ -48,7 +48,7 @@ bool Lamp::checkFlashState()
     {
       flashToggle();
     }
-    return flash_togle_;
+    return flash_toggle_;
   }
   // if flashing period is 0, then lamp is always ON
   else
@@ -65,7 +65,7 @@ void Lamp::setColor(const Color new_color)
 void Lamp::setFlashingPeriod(const uint16_t period)
 {
   // reset flash variables
-  flash_togle_ = true;
+  flash_toggle_ = true;
   last_flash_time_ = getTimeInMiliseconds();
   // set new period
   flashing_period_ms_ = period;
@@ -112,7 +112,7 @@ void Lamp::setLedsRGBvalues(ColorInRgb* rgb_color)
   }
 }
 
-uint8_t Lamp::getFadingMultiplier()
+uint8_t Lamp::getFadingMultiplier() const
 {
   uint64_t now = getTimeInMiliseconds();
   if (fading_period_ms_ > 0 && ((now - last_fading_time_) <= fading_period_ms_))
@@ -135,7 +135,7 @@ uint8_t Lamp::getFadingMultiplier()
   }
 }
 
-uint64_t inline Lamp::getTimeInMiliseconds()
+uint64_t inline Lamp::getTimeInMiliseconds() const
 {
   return static_cast<uint64_t>(
       std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())

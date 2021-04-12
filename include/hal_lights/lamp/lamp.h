@@ -15,7 +15,7 @@ class Lamp
   uint8_t intensity_;
   Color faded_color_;
   uint64_t last_flash_time_;
-  bool flash_togle_;
+  bool flash_toggle_;
   uint16_t flashing_period_ms_;
   uint64_t last_fading_time_;
   uint16_t fading_period_ms_;
@@ -24,8 +24,8 @@ class Lamp
   inline bool checkIfTimerOverflown();
   inline void flashToggle();
   bool checkFlashState();
-  uint8_t getFadingMultiplier();
-  uint64_t inline getTimeInMiliseconds();
+  uint8_t getFadingMultiplier() const;
+  uint64_t inline getTimeInMiliseconds() const;
 
 public:
   explicit Lamp(const LedSegment& lamp_leds);

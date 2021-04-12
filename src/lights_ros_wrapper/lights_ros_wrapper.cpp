@@ -37,9 +37,9 @@ void LightsRosWrapper::addLamp(const std::string lamp_name, const uint16_t start
   {
     leds_controller_.addLamp(lamp_name, start_pixel, last_pixel);
   }
-  catch (const std::exception* except)
+  catch (const std::exception& except)
   {
-    ROS_ERROR_STREAM("[HalLights]" << std::string(except->what()) << std::endl);
+    ROS_ERROR_STREAM("[HalLights]" << std::string(except.what()) << std::endl);
   }
 }
 
@@ -59,9 +59,9 @@ bool LightsRosWrapper::changeLampConfiguration(const LampConfiguration& config)
     leds_controller_.changeLampConfiguration(config);
     return true;
   }
-  catch (const std::exception* except)
+  catch (const std::exception& except)
   {
-    ROS_ERROR_STREAM("[HalLights] " << std::string(except->what()) << '\n');
+    ROS_ERROR_STREAM("[HalLights] " << std::string(except.what()) << '\n');
     return false;
   }
 }

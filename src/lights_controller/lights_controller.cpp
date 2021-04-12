@@ -54,9 +54,9 @@ bool LightsController::addLamp(const std::string& lamp_name, const uint16_t star
   {
     temporary = lamp->getLampSegment();
     // check if lamps pixels don't overlap
-    if (!(led_segment.last_pixel_index_ < temporary.first_pixel_index_))
+    if (led_segment.last_pixel_index_ >= temporary.first_pixel_index_)
     {
-      if (!(temporary.last_pixel_index_ < led_segment.first_pixel_index_))
+      if (temporary.last_pixel_index_ >= led_segment.first_pixel_index_)
       {
         throw std::invalid_argument(
             "Lamp name: " + lamp_name + " " + std::to_string(led_segment.first_pixel_index_) + " " +
@@ -66,7 +66,7 @@ bool LightsController::addLamp(const std::string& lamp_name, const uint16_t star
     }
   }
   // if they don't overlap, then add lamp to the unordered map
-  lamps_.insert(std::make_pair(lamp_name, std::make_unique<Lamp>(led_segment)));
+  lamps_[lamp_name] = std::make_unique<Lamp>(led_segment);
   return true;
 }
 
@@ -74,6 +74,7 @@ void LightsController::changeEveryLampConfiguration(const LampConfiguration& con
 {
   for (auto& [key, lamp] : lamps_)
   {
+    static_cast<void>(key);
     lamp->setColor(config.color_);
     lamp->setIntensity(config.intensity_);
     lamp->setFlashingPeriod(config.period_flashing_);
@@ -118,21 +119,22 @@ void LightsController::setLedsStates()
 {
   for (auto& [key, lamp] : lamps_)
   {
+    static_cast<void>(key);
     changeLampLedsColor(lamp);
   }
 }
 
-void LightsController::changeLampLedsColor(std::unique_ptr<Lamp> const& lamp)
+void LightsController::changeLampLedsColor(const std::unique_ptr<Lamp> &lamp)
 {
   uint16_t lamp_leds_base_index = lamp->getLampSegment().first_pixel_index_;
   uint16_t lamp_leds_last_index = lamp->getLampSegment().last_pixel_index_;
-  ColorInRgb colorRGB;
-  lamp->setLedsRGBvalues(&colorRGB);
+  ColorInRgb color_rgb;
+  lamp->setLedsRGBvalues(&color_rgb);
   for (std::size_t led_position = lamp_leds_base_index; led_position < lamp_leds_last_index; led_position++)
   {
-    leds_state_[led_position]->red_ = colorRGB.red_;
-    leds_state_[led_position]->green_ = colorRGB.green_;
-    leds_state_[led_position]->blue_ = colorRGB.blue_;
+    leds_state_[led_position]->red_ = color_rgb.red_;
+    leds_state_[led_position]->green_ = color_rgb.green_;
+    leds_state_[led_position]->blue_ = color_rgb.blue_;
   }
 }
 
